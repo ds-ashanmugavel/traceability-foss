@@ -10,6 +10,7 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 ### Changed
 - #965 Implement proxy functionality of the IRS policy store
 - #962 Changed notification model to new one in frontend/backend
+- XXX Updated sonar maven plugin to version 4.0.0.4121
 
 ### Added
 - #832 added policymanagement list view, creator and editor
