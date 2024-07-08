@@ -1661,7 +1661,7 @@ The EDC policy request will be used for creating a policy for the required notif
 </div>
 <div class="imageblock">
 <div class="content">
-<img src="architecture-constraints/diag-plantuml-md5-7990eb0fc74bfe268f5349bb6e6004b1.svg" alt="Diagram" width="2033" height="1127">
+<img src="architecture-constraints/diag-plantuml-md5-02e8c16ca5bc38a04ad201ff718a283f.svg" alt="Diagram" width="2033" height="1160">
 </div>
 </div>
 </div>
@@ -1687,7 +1687,7 @@ The EDC policy request will be used for creating a policy for the required notif
 <h5 id="_quality_notifications">Quality notifications</h5>
 <div class="imageblock">
 <div class="content">
-<img src="architecture-constraints/level-2.svg" alt="level 2" width="1641" height="663">
+<img src="architecture-constraints/level-2.svg" alt="level 2" width="1641" height="680">
 </div>
 </div>
 </div>
@@ -1728,6 +1728,22 @@ This component requires authentication via a Verifiable Credential (VC), which i
 </div>
 <div class="paragraph">
 <p>The VC identifies and authenticates the EDC and is used to acquire access permissions for the data transferred via EDC.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_trusted_port_for_internal_apis">Trusted Port for Internal APIs</h5>
+<div class="paragraph">
+<p>A second port, called the trusted port, has been introduced which can only be accessed by internal services within the Kubernetes cluster. This measure is implemented to handle APIs that are difficult to secure and involve several systems and processes. The trusted port ensures that only internal, trusted components can access these sensitive APIs, enhancing overall security.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Quality notification callback APIs (receive, update) - called by EDC Dataplane</p>
+</li>
+<li>
+<p>Endpoint Data Reference callback API - called by EDC Controlplane</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
@@ -2703,7 +2719,7 @@ Date filter: <span class="image"><img src="https://raw.githubusercontent.com/ecl
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2024-06-21 08:18:04 UTC
+Last updated 2024-07-08 07:37:52 UTC
 </div>
 </div>
 </body>
