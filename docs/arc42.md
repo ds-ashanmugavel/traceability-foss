@@ -15,8 +15,7 @@ This work is licensed under the [Apache-2.0](https://www.apache.org/licenses/LIC
 
 ## Introduction and goals
 
-This chapter gives you an overview about the goals of the service,
-in which context the service runs and which stakeholders are involved.
+This chapter gives you an overview about the goals of the service, in which context the service runs and which stakeholders are involved.
 
 ## Requirements overview
 
@@ -26,7 +25,7 @@ in which context the service runs and which stakeholders are involved.
 * It is a standalone application which can be self-hosted.
 * Display the relations of the automotive value chain based on a standardized IT model.
 * Overview and transparency across the supplier network enable faster intervention based on recorded events in the supply chain.
-* Notifications/Messages regarding quality-related incidents and a tool for inspecting the supply chain.
+* Notifications & Messages regarding quality-related incidents and a tool for inspecting the supply chain.
 
 ### Essential features
 
@@ -34,8 +33,9 @@ in which context the service runs and which stakeholders are involved.
 * List, view and publish planned parts based on BoM AsPlanned
 * Filter and search functionality on part views
 * Show detailed information on manufactured parts from AAS description assets and aspects
-* Uses submodels SerialPart, AssemblyPartRelationship and Batch
-* List and view supplier parts (AssemblyPartRelationship) based on BoM AsBuild lifecycle
+* Uses submodels SerialPart, Batch, JustInSequence and PartAsPlanned
+* List and view supplier parts (SingleLevelBomAsBuilt) based on BoM AsBuilt lifecycle
+* List and view customer parts (SingleLevelUsageAsBuilt) based on BoM AsBuilt lifecycle
 * View parts and parts relations in a visualized parts tree
 * Send and receive top-down notifications (quality investigations) along the supply chain
 * Compliance with Catena-X guidelines
@@ -48,7 +48,7 @@ The following table entries define overall Trace-X quality goals. The order of t
 | --- | --- |
 | Running reference application for Catena-X traceability | Consume traceability data, visualize it in a state-of-the-art frontend to the user and enable the exchange of notifications. |
 | Accessible and easy to use | Enable SMEs to large enterprises. |
-| Cloud agnostic solution | Trace-X is built as a reference architecture and able to be run on different cloud solutions. It uses Helm, i.e. Helm charts, so that it can easily be deployed on different systems. |
+| Cloud agnostic solution | Trace-X is built as a reference architecture and able to be run on different cloud solutions. It uses Helm charts so that it can easily be deployed on different systems. |
 | Trustworthy application | Trace-X uses the Catena-X standards as a basis to fulfill the interoperability (with commercial as well as other solutions) and data sovereignty requirements. |
 | Application reliability | The Trace-X architecture is set up so that provided part tree structures are consumed, aggregated and utilized to enable quality related actions such as notifications along the supply chain on which the costumers can rely. |
 | Usability and user experience | Trace-X is aligned with the overarching UUX guidelines. This ensures ease of use for the user as well as a good user experience. |
@@ -56,7 +56,7 @@ The following table entries define overall Trace-X quality goals. The order of t
 
 ## Stakeholder
 
-The following table presents the stakeholders of Trace-X and their respective intentions.
+The following table presents the stakeholders of Trace-X and their respective interests.
 
 | Who | Matters and concern |
 | --- | --- |
@@ -84,7 +84,7 @@ The following table presents the stakeholders of Trace-X and their respective in
 | Schedule | Start of development in July 2022. Further development in alignment with the foundation of the Catena-X Automotive Network e.V. requirements and timeline. |
 | Process model | Iterative and incremental. The SAFe framework is used to align with Catena-X services, prerequisites, components and requirements to be Catena-X compatible. |
 | Catena-X services / requirements | Trace-X needs to be Catena-X compliant and the application has to follow the CX standards as well as interact with the core services and components. |
-| Release as open source | The source code - at least partially - is made available as open source and can be found in Github Catena-X ng as well as in Eclipse Tractus-X. |
+| Release as open source | The source code - at least partially - is made available as open source and can be found in GitHub Catena-X ng as well as in Eclipse Tractus-X. |
 | Technology Readiness Level (TRL) for products developed within the CX consortia | As Trace-X is a reference implementation, the Technology Readiness Level (TRL) must not be above TRL 8. |
 
 ### Political constraints
@@ -103,7 +103,7 @@ The following table presents the stakeholders of Trace-X and their respective in
 
 ## System scope and context
 
-Trace-X is an end-user application to visualize and utilize data provided to the Catena-X network. This includes the traceability of manufactured parts and batches as well as the shipped and supplied components. To utilize the CX open ecosystem it is necessary to exchange information on serialized parts and batches with supply chain partners in a standardized, data-sovereign and interoperable way. This section describes the environment of Trace-X, its intended users and which systems and components it interacts with.
+Trace-X is an end-user application to visualize and utilize data provided to the Catena-X network. This includes the traceability of manufactured parts and batches as well as the shipped and supplied components. To utilize the CX open ecosystem, it is necessary to exchange information on serialized parts and batches with supply chain partners in a standardized, data-sovereign and interoperable way. This section describes the environment of Trace-X, its intended users and which systems and components it interacts with.
 
 ## Business context
 
@@ -136,7 +136,7 @@ Trace-X interacts with any other traceability app using the CX standards. This e
 We provide a REST API that is consumed by Trace-X frontend in order to deliver Trace-X related features such as quality investigations or asset chain visibility.
 Since the Trace-X component is the very last component in the Catena-X ecosystem we are mostly dependent on the other services and theirs APIs in other to deliver desired functionalities. The development of the services is not a part of the Trace-X application and each of the system that we utilize exposes a REST API that we consume and interact with directly.
 
-Trace-X is a Spring Boot based application and is secured with the OpenID connector provider Keycloak and the OAuth2. This means for the companies, that utilize Trace-X component, it is required to obtain a technical user in order to be authorized to get access to the external components within Catena-X ecosystem.
+Trace-X is a Spring Boot based application and is secured with the OpenID connector provider Keycloak and OAuth2. This means for the companies that utilize the Trace-X component, it is required to obtain a technical user to be authorized to get access to the external components within the Catena-X ecosystem.
 
 In order to use the Trace-X frontend with the Trace-X backend, users need to authenticate themselves in order to be authorized to get access to the Trace-X.
 In the frontend UI users provide valid credentials and the system generates a bearer token that it gets from Keycloak and attaches it to the HTTP header parameter Authorization.
@@ -146,8 +146,8 @@ Once a user is authorized and has a proper role in the Trace-X backend, the back
 
 ![arc42_001](https://ds-ashanmugavel.github.io/traceability-foss/docs/assets/arc42/arc42_001.png)
 
-The Trace-X acts as a consumer of the asset administration shell registry component. Trace-X contains a restful client (REST template) that builds a REST call to the mentioned digital twin registry API based on its known URL (the AAS registry URL is configurable in Trace-X).
-Requests contain "assetIds" provided by the component during asset synchronization. Like described in the above section, the security aspect is required in order to achieve a REST call against the AAS Registry. As a response, Trace-X gets the corresponding shells and shell descriptors utilized later for asset synchronization.
+Trace-X acts as a consumer of the asset administration shell registry component. Trace-X contains a restful client (REST template) that builds a REST call to the mentioned digital twin registry API based on its known URL (the AAS registry URL is configurable in Trace-X).
+Requests contain 'assetIds' provided by the component during asset synchronization. Like described in the above section, the security aspect is required in order to achieve a REST call against the AAS Registry. As a response, Trace-X gets the corresponding shells and shell descriptors utilized later for asset synchronization.
 The HTTP(s) transport protocol is used for the REST call communication.
 
 #### IRS API
@@ -172,14 +172,14 @@ As mentioned above, the transport protocol HTTP(S) is used for the REST call com
 ![arc42_004](https://ds-ashanmugavel.github.io/traceability-foss/docs/assets/arc42/arc42_004.png)
 
 The Trace-X acts as a consumer and provider of the EDC component.
-In Trace-X we communicate with EDC directly only for the sake of fulfilling quality investigation functionality.
-Specific use cases can be viewed in [Runtime view](../runtime-view/index.adoc) section.
+In Trace-X we communicate with the EDC directly only for the sake of fulfilling the quality notification functionality.
+Specific use cases can be viewed in the [Runtime view](../runtime-view/index.adoc) section.
 For these purposes the integrated EDC clients in Trace-X are responsible for creating restful requests to the EDC component.
 As mentioned above, the transport protocol HTTP(S) is used for the REST call communication.
 
 ## Solution strategy
 
-This section contains summarized architectural overview. A comparison of the most important goals and the corresponding solution approaches.
+This section contains a summarized architectural overview, a comparison of the most important goals and the corresponding solution approaches.
 
 ## Introduction
 
@@ -190,7 +190,7 @@ Following table describes the quality goals of Trace-X (see chapter quality goal
 | Running reference application for Catena-X traceability | * Published open-source, Trace-X application can be used as a reference by anyone. |
 | Accessible and easy to use | * Established programming languages are used. * Backend written in Java. * Frontend written in Typescript based on the Angular framework. |
 | Cloud agnostic solution | * Helm charts to support the deployment of the application in a Kubernetes environment. |
-| Application reliability | * Data source is the Catena-X network. Data is fetched with IRS directly from the data owner and the digital twin registry of CX. * Trace-X can be hosted decentralized since it is an open-source reference implementation. |
+| Application reliability | * Data source is the Catena-X network. Data is fetched directly from the data owner using the IRS and the digital twin registry of CX. * Trace-X can be hosted decentralized since it is an open-source reference implementation. |
 | Security | * Static Application Security Testing (SAST) and Dynamic Application Security Testing (DAST) are executed automatically and regularly with tools as part of the pipeline. |
 
 ## Technology
@@ -205,12 +205,12 @@ For the database PostgreSQL is used.
 
 ## Structure
 
-Trace-X is divided into two components: frontend and backend.
+Trace-X is divided into two components: Frontend and backend.
 It roughly can be broken down into the following parts:
 
 * Asset controllers to get asset information
 * Dashboard controller to get dashboard related summed up information
-* Registry controller to fetch assets from the digital twin registry
+* Registry controller to fetch assets from the Digital Twin Registry
 * Notification controller to get notification information and create EDC notification offers
 * Submodel controller for providing asset data functionality
 * Import controller for importing Trace-X data for data provisioning
@@ -220,7 +220,7 @@ It roughly can be broken down into the following parts:
 * Policy controller to retrieve information about policies
 * BPN controller to retrieve information about business partners
 
-The backend does a request to the digital twin registry utilizing the registry controller. Extracted data from the response is made available through the asset controller and the dashboard controller to the frontend.
+The backend does a request to the Digital Twin Registry utilizing the registry controller. Extracted data from the response is made available through the asset controller and the dashboard controller to the frontend.
 
 ## Building block view
 
@@ -240,8 +240,8 @@ Component Diagram
 
 | Components | Description |
 | --- | --- |
-| IRS | The IRS consumes relationship information across the CX-network and builds the graph view. Within this documentation, the focus lies on the IRS. |
-| EDC consumer | The EDC consumer component is there to fulfill the GAIA-X and IDSA-data sovereignty principles. The EDC consumer consists out of a control plane and a data plane. |
+| IRS | The IRS consumes relationship information across the CX-network and builds the graph view. |
+| EDC consumer | The EDC consumer component is there to fulfill the GAIA-X and IDSA-data sovereignty principles. The EDC consumer is composed of a control plane and a data plane. |
 | EDC provider | The EDC provider component connects with EDC consumer component and forms the endpoint for the actual exchange of data. It handles automatic contract negotiation and the subsequent exchange of data assets for connected applications. |
 | Submodel server | The submodel server offers endpoints for requesting the submodel aspects. |
 
@@ -255,28 +255,28 @@ Component Diagram
 
 | Components | Description |
 | --- | --- |
-| **Trace-X** | **Trace-X** is a system allowing the user to review the parts/assets catalogue, start a quality investigations and receive quality alerts. |
-| **Trace-X API** | The **Trace-X API** is the interface over which the data consumer is communicating. |
-| **AssetsController** | The **AssetsController** provides a REST interface for retrieving the parts/assets information. |
-| **DashboardController** | The **DashboardController** provides a REST interface for retrieving overall statistics displayed on a dashboard screen. |
-| **RegistryController** | The **RegistryController** provides a REST interface for retrieving the data from parts registry. |
+| **Trace-X** | **Trace-X** is a system allowing the user to review the parts / assets catalog and send / receive quality notifications related to those parts. |
+| **Trace-X API** | The **Trace-X API** is the interface through which the data consumer is communicating. |
+| **AssetsController** | The **AssetsController** provides a REST interface for retrieving asset information. |
+| **DashboardController** | The **DashboardController** provides a REST interface for retrieving overall statistics displayed on the dashboard screen. |
+| **RegistryController** | The **RegistryController** provides a REST interface for retrieving data from the assets registry. |
 | **ImportController** | The **ImportController** provides a REST interface for importing assets and publishing them in the Catena-X network. |
-| **AssetRepository** | The **AssetRepository** is a component responsible for storing and getting assets from database. |
+| **AssetRepository** | The **AssetRepository** is a component responsible for storing and getting assets from the database. |
 | **BPNRepository** | The **BPNRepository** is a component which stores BPN -> company name mappings. |
-| **NotificationsRepository** | The **NotificationsRepository** is a component responsible for storing and holding status of sent/received notifications. |
-| **Database** | The **database** is a place for storing assets, relations as well as sent/received notifications. |
+| **NotificationsRepository** | The **NotificationsRepository** is a component responsible for storing the status and data of sent and received notifications. |
+| **Database** | The **database** is a place for storing assets, relations and notifications. |
 
 ## Runtime view
 
-This section describes the different functionalities of Trace-X application.
+This section describes the different functionalities of the Trace-X application.
 
 ## Assets
 
 ## Scenario 1: Return assets
 
-This section describes what happens when user lists stored assets.
-In this example, the user requests as built assets.
-The same can be done with as planned assets.
+This section describes what happens when users list stored assets.
+In this example, the user requests as-built assets.
+The same can be done with as-planned assets.
 
 ![arc42_007](https://ds-ashanmugavel.github.io/traceability-foss/docs/assets/arc42/arc42_007.png)
 
@@ -285,19 +285,19 @@ The same can be done with as planned assets.
 When a user requests stored assets, Trace-X checks if the user has an adequate role ('ROLE_ADMIN', 'ROLE_SUPERVISOR', 'ROLE_USER').
 If yes, then the endpoint returns a pageable result of assets.
 
-The returned pageable result can be empty if no suitable asset has been found.
+The returned result can be empty if no suitable asset has been found.
 
 ## Scenario 2: Return specific assets
 
-This section describes what happens when user searches for a specific asset.
-This example shows the request of one as built asset.
-The same can be done with as planned assets.
+This section describes what happens when users search for a specific asset.
+This example shows the request of one as-built asset.
+The same can be done with as-planned assets.
 
 ![arc42_008](https://ds-ashanmugavel.github.io/traceability-foss/docs/assets/arc42/arc42_008.png)
 
 ### Overview
 
-When a user requests a specific asset, Trace-X checks if the user has an adequate role ('ROLE_ADMIN', 'ROLE_SUPERVISOR', 'ROLE_USER'). If yes, then the endpoint returns a precise asset for the given assetId, if it is found.
+When a user requests a specific asset, Trace-X checks if the user has an adequate role ('ROLE_ADMIN', 'ROLE_SUPERVISOR', 'ROLE_USER'). If yes, then the endpoint returns the asset for the given assetId, if it is found.
 
 If no asset has been found for the given ID, an AssetNotFoundException is thrown.
 
@@ -305,58 +305,58 @@ If no asset has been found for the given ID, an AssetNotFoundException is thrown
 
 ## Receive quality notification
 
-This sequence diagram describes the process of receiving a quality notification from another traceability partner.
+This sequence diagram describes the process of receiving a quality notification from another traceability partner:
 
 ![arc42_009](https://ds-ashanmugavel.github.io/traceability-foss/docs/assets/arc42/arc42_009.png)
 
 ### Overview
 
-As for the sending of a quality notification also for receiving of a notification EDC is used to push data from a sender to a receiver.
-To enable receiving a notification by a partner you need to
+The EDC is utilized to transmit data between sender and receiver for both sending and receiving notifications.
+To be able to receive notifications by a partner you need to
 
-* Create notification endpoint for qualitynotifications/receive
+* Create a notification endpoint for qualitynotifications/receive
 * Create EDC assets
 * Create EDC usage policies
 * Create EDC contract definitions
 
-Trace-X implements a functionality to create the assets and their corresponding policies in the admin panel.
+Trace-X implements a functionality to create assets and their corresponding policies in the admin panel.
 
-With the notification asset it is possible to enable EDC contract negotiation and EDC data transfer based on access policies defined. Only if the sender is able to find the asset in the catalog offer and perform a successful contract negotiation there will be the possibility to push a notification to the specified http endpoint on the receiver side.
+With the notification asset it is possible to enable EDC contract negotiation and EDC data transfer based on access policies defined. Only if the sender is able to find the asset in the catalog offer and perform a successful contract negotiation there will be the possibility to send a notification to the specified http endpoint on the receiver side.
 
 ## Send quality notification
 
-This sequence diagram describes the process of sending a quality notification between traceability applications.
+This sequence diagram describes the process of sending a quality notification between traceability applications:
 
 ![arc42_010](https://ds-ashanmugavel.github.io/traceability-foss/docs/assets/arc42/arc42_010.png)
 
 ### Overview
 
-For the notification feature EDC is used to push data from a sender to a receiver.
-To enable sending respective more precisely receiving a notification by a partner you need to
+The EDC is utilized to transmit data between sender and receiver for both sending and receiving notifications.
+To be able to send notifications to a partner you need to
 
-* Create notification endpoint for qualitynotifications/receive
+* Create a notification endpoint for qualitynotifications/send
 * Create EDC assets
 * Create EDC usage policies
 * Create EDC contract definitions
 
-Trace-X implements a functionality to create the assets and their corresponding policies in the admin panel. With the notification asset it is possible to enable EDC contract negotiation and EDC data transfer process so that the quality investigation can be pushed by the sender.
+Trace-X implements a functionality to create assets and their corresponding policies in the admin panel.
 
-In the above UML sequence diagram the sending of quality notifications from Trace-X to a receiver (any other traceability application) is described.
+With the notification asset it is possible to enable EDC contract negotiation and EDC data transfer process so that the quality investigation can be sent by the sender.
 
 ## Data consumption
 
-This sequence diagram describes the process of fetching data from a DTR and the Catena-X ecosystem.
+This sequence diagram describes the process of fetching data from the DTR and the Catena-X ecosystem:
 
 ![arc42_011](https://ds-ashanmugavel.github.io/traceability-foss/docs/assets/arc42/arc42_011.png)
 
 ### Overview
 
-Data is fetched by a Trace-X instance using Digital Twin Registry (DTR), Item Relationship Service (IRS) and Trace-X consumer EDC.
-For digital twins the Asset Administration Shell (AAS) standard is used. For fetching data with Trace-X, a Digital Twin Registry and an IRS instance are required. Data should represent parts, supplier and customer parts, parts tree / parts relations.
+Data is fetched by a Trace-X instance using the Digital Twin Registry (DTR), Item Relationship Service (IRS) and Trace-X consumer EDC.
+For digital twins the Asset Administration Shell (AAS) standard is used. For fetching data with Trace-X a Digital Twin Registry and an IRS instance are required. Data should represent parts, supplier and customer parts, part trees / part relations.
 
 ## Data provisioning
 
-This sequence diagrams describes the process of importing data from a Trace-X dataformat
+The following sequence diagrams describe the process of importing data from a Trace-X dataformat:
 
 ### Module 1
 
@@ -364,74 +364,65 @@ Data will be imported by the Trace-X frontend into the Trace-X backend and will 
 The raw data which is needed for the shared services (DTR / EDC) will be persisted as well.
 
 ![arc42_012](https://ds-ashanmugavel.github.io/traceability-foss/docs/assets/arc42/arc42_012.png)
-```bash
-
-```
 
 ### Module 2
 
-The frontend is able to select assets and publish / synchronize them with the shared services. DTR / EDC / submodel API.
+The frontend is able to select assets and publish / synchronize them with the shared services DTR / EDC / submodel API.
 
 ![arc42_013](https://ds-ashanmugavel.github.io/traceability-foss/docs/assets/arc42/arc42_013.png)
-```bash
-
-```
 
 ### Module 3
 
-The backend is able to persist the data in the DTR / EDC and allows to use IRS for resolving assets.
+The backend is able to persist the data in the DTR / EDC and enables the IRS to resolve assets.
 
 ![arc42_014](https://ds-ashanmugavel.github.io/traceability-foss/docs/assets/arc42/arc42_014.png)
-```bash
-
-```
 
 ## Scenario 1: Receive import report
 
-This section describes what happens when the user wants to get a report of the imported assets associated to a importJobId.
+This section describes what happens when the user wants to get a report of the imported assets associated with a importJobId.
 In this example, the user requests an import report.
 
 ### Overview
 
 When a user requests an import report, Trace-X checks if the user has an adequate role ('ROLE_ADMIN', 'ROLE_SUPERVISOR').
-If yes, then the endpoint returns an import report to the given importJobId.
+If yes, the endpoint returns the import report of the given importJobId.
 
 If the importJobId is not known to Trace-X, an HTTP 404 error is returned.
 
 ## Scenario 2: Publish assets
 
-This section describes user interaction when publishing assets
+This section describes the user interaction when publishing assets
 
 ### Overview
 
 When a user publishes assets, Trace-X checks if the user has an adequate role ('ROLE_ADMIN').
-If yes, then the endpoint starts to publish assets to network.
+If yes, the endpoint starts to publish assets to the network.
 
 ## Scenario 3: Publish assets - error on EDC or DTR
 
-This section describes user interaction when publishing assets fails due to EDC or DTR error (for example when the services are unavailable).
+This section describes the user interaction when publishing assets fails due to an EDC or DTR error (for example when the services are unavailable).
 
 ### Overview
 
 When a user publishes assets, Trace-X checks if the user has an adequate role ('ROLE_ADMIN').
-If yes, then the endpoint starts to publish assets to network.
-If any of required services are not available or return an error response upon executing, flow assets are set to ERROR state and the user can retry publishing them at any time when services are available again.
+If yes, the endpoint starts to publish assets to network.
+If any of the required services are not available or return an error response upon executing, the included assets are set to ERROR state and the user can retry publishing them at any time when services are available again.
 
 ## Data sovereignty
 
 ## Scenario 1: Return asset contract agreements
 
-This section describes functionality and the behavior in case a user requests contract agreements from Trace-X via the Trace-X contracts API (/contracts).
+This section describes the functionality and behavior when a user requests contract agreements from Trace-X via the Trace-X contracts API (/contracts).
 
 ### Overview
 
 In case a user requests contract agreements, Trace-X checks if the user has required roles ('ROLE_ADMIN', 'ROLE_SUPERVISOR').
-If yes, then the requested assets will be mapped to the related contract agreement id.
-These contract agreement ids will be then requested on EDC side via POST (/management/v2/contractagreements/request) and GET (/management/v2/contractagreements/\{ContractAgreementId\}/negotiation) to get the relevant information.
+If yes, the requested assets will be mapped to the related contract agreement ID.
+These contract agreement IDs will be then requested on EDC side via POST (/management/v2/contractagreements/request) and GET (/management/v2/contractagreements/\{ContractAgreementId\}/negotiation) to get the relevant information.
 
 The contract information is then returned by the endpoint as a pageable result.
 
-If no asset ids are provided in the request, 50 contract agreement ids are handled by default.
+If no asset IDs are provided in the request, 50 contract agreements are returned by default.
 
 ## Policy management
 
@@ -443,19 +434,20 @@ After deploying Trace-X, no policies are defined for any BPNs yet. Instead, Trac
 However, to be sure that data is shared only with companies that match one’s requirements, an administrator must set up policies before sending and receiving data.
 
 The policies used for sending and receiving notifications and parts have an identical data format, so they can be used for each process interchangeably.
-The processes itself are different and will be explained here:
+The processes itself are different and will be explained in this section.
 
 ### Policy Types
 
-The EDC Connector MUST provide a possibility to restrict the access of a Data Asset to specific business partners by attribute(s), e.g., represented as a VC.
-The Connector MUST restrict the data usage to partners and purposes for a specific use case.
+The EDC connector MUST provide a possibility to restrict the access of a data asset to specific business partners by attribute(s), e.g. represented as a VC.
+The connector MUST restrict the data usage to partners and purposes for a specific use case.
 
 There are two policy types used.
+
 * Access
 * Usage
 
-As specified by the [Dataspace Protocol](https://github.com/International-Data-Spaces-Association/ids-specification), one Data Asset MUST refer to at least one Usage Policy, expressed in ODRL.
-For additional information refer to [Connector KIT](https://eclipse-tractusx.github.io/docs-kits/kits/Connector%20Kit/Adoption%20View/connector_kit_adoption_view)
+As specified by the [Dataspace Protocol](https://github.com/International-Data-Spaces-Association/ids-specification) one data asset MUST refer to at least one usage policy, expressed in ODRL.
+For additional information refer to the [Connector KIT](https://eclipse-tractusx.github.io/docs-kits/kits/Connector%20Kit/Adoption%20View/connector_kit_adoption_view)
 
 ### Policies for sending and receiving parts
 
@@ -463,36 +455,30 @@ For additional information refer to [Connector KIT](https://eclipse-tractusx.git
 
 |     |     |
 | --- | --- |
-| 1 | Policies can be created by User with role 'Admin' at any time in the administration section of Trace-X. The policy is created to later used for publishing assets in the current company context. |
-| 2 | Policies are stored in the PolicyStore which is a shared component used by Trace-X [A] app and IRS for storing usage and access policies. |
-| 3 | Policy is created in the policy store. |
-| 4 | User with role 'Admin' receives feedback that creation of policy was successful. |
-| 5, 6 | User with role 'Admin' imports assets in Admin section of Trace-X [A]. Parts can be imported at any time in the parts section of Trace-X. They will be stored locally at first. [Testdata for asset import](https://github.com/eclipse-tractusx/traceability-foss/tree/main/tx-backend/testdata) |
-| 7 | User with role 'Admin' selects assets in transient state in application. |
-| 8 | User with role 'Admin' is requested to define a policy for assets publishing. |
-| 9 | User with role 'Admin' selects policy under which assets are published. The user must choose the policy that is used for contract negotiation of the selected parts. |
-| 10, 11 | Assets are created in the EDC. (POST /v3/assets) |
-| 12,13 | Trace-X [A] BE checks if PolicyDefinition for selected policy already exists. |
-| 14,15 | In case PolicyDefinition does not exist. New PolicyDefinition is created in EDC [A]. The PolicyDefinition is created in the EDC. |
-| 16,17 | The created part is linked in the PolicyDefinition from the EDC. This is the last step of data provisioning. Trace-X [A] has done everything to ensure that companies that have a matching policy can access its published parts. |
-| 18,19 | Each part is created as a shell in the DTR. This holds all the data of the part. Before connected BPNs can access the imported parts, the parts must be published to the EDC and to the Digital Twin Registry (DTR). |
-| 20,21 | User with role 'Admin' in Trace-X [B] creates policy for consuming assets of Trace-X [A]. |
+| 1,2,3,4 | Policies can be created by user with role 'Admin' at any time in the administration section of Trace-X. The policy is created to later used for publishing parts in the current company context. Policies are stored in the PolicyStore which is a shared component used by Trace-X [A] and Item Relationship Service (IRS) for storing usage and access policies. |
+| 5,6 | User with role 'Admin' imports assets in the administration section of Trace-X [A]. Parts can be imported at any time in the parts section of Trace-X. They will be stored locally at first. [Testdata for asset import](https://github.com/eclipse-tractusx/traceability-foss/tree/main/tx-backend/testdata) |
+| 7,8,9 | User with role 'Admin' selects parts in transient state in application and publishes them. The user must choose the policy that is used for the contract negotiation of the selected parts. |
+| 10,11 | The parts are created in the EDC. (POST /v3/assets) |
+| 12,13 | In case the PolicyDefinition does not exist yet, a new PolicyDefinition is created in the EDC [A]. |
+| 14,15 | A contractDefinition is created using the provided policyDefinition. |
+| 16,17 | Each part is created as a Asset Administration Shell Descriptor in the Digital Twin Registry (DTR). This holds all the data of the part including the globalAssetId. |
+| 18,19,20,21 | Policies can be created by user with role 'Admin' at any time in the administration section of Trace-X. When synchronizing parts, the respective policies for connected BPNLs will be used. |
 | 22 | Trace-X [B] wants to synchronize parts and retrieve available ones from connected BPNs. In this case Trace-X [A] and Trace-X [B] have an established connection. |
-| 23,24 | Trace-X [B] requests for globalAssetIds (unique identifier of digital twins (Asset Administration Shell)) in decentral Digital Twin registry. |
-| 25 | For part synchronization a synchronization job is started in the Item Relationship Service (IRS) . |
-| 26,27 | IRS requests for CatalogOffer for globalAssetsIds passed by Trace-X [A] |
-| 28 | IRS extracts policies from CatalogOffer |
-| 29,30 | IRS requests for policies defined for BPNL of Trace-X [A] in PolicyStore of Trace-X [B] |
-| 31 | Now that the IRS has all the relevant policies of both companies, it can start comparing the linked policy of each part to the policy list of Trace-X B. This works by comparing the included constraints logically. If no policy matches for a part, it will not be imported. |
-| 32,33,34 | If the policy of the part matches with any policy of Trace-X A, a contract agreement is created for both Trace-X A and Trace-X B. It can be viewed in the administration section of Trace-X and documents the data exchange. Since the contractAgreementId will be mapped to an submodel of IRS. The contracts can be seen after IRS responded to Trace-X initial sync call with the submodels including the contractAgreementId. |
-| 35 | Now that the contract negotiation was successful, the data consumption process can take place for that part. |
-| 36 | In case policy does not match IRS created tombstone. |
-| 37 | IRS callbacks Trace-X [B] Instance after completing job processing. ContractAgreementId for asset is available in Trace-X passed in IRS JobResponse. |
+| 23,24 | Trace-X [B] requests all Asset Administration Shell Descriptors in the DTR of Trace-X [A]. |
+| 25 | The globalAssetIds are extracted from the Shell Descriptors. |
+| 26 | For part synchronization a job is started in the IRS using the globalAssetIds from the previous step. |
+| 27,28 | IRS requests the catalogOffer for all globalAssetsIds. |
+| 29,30 | IRS requests policies defined for the BPNL of Trace-X [A] in the PolicyStore of Trace-X [B]. |
+| 31 | Now that the IRS has all the relevant policies of both companies, it can start comparing the linked policy in the catalogOffer of each part to the policy list of Trace-X [B]. This works by comparing the included constraints logically. |
+| 32,33,34,35 | If the policy of the part matches with any policy of Trace-X [A], a contract agreement is created for both Trace-X [A] and Trace-X [B]. It can be viewed in the administration section of Trace-X and documents the data exchange. |
+| ref import part data | Now that the contract negotiation was successful, the part data can be imported. This process is documented in the data consumption section. |
+| 36,37 | In case the policy does not match, IRS creates a tombstone and sends a job response to Trace-X [B]. |
+| 38 | IRS responds to the Trace-X [B] instance after completing job processing. The contractAgreementId for the asset is available in the job response. |
 
-It’s possible to publish parts with different policies. For this, the user must only publish a limited selection of parts for which he can select a policy. For the parts that must be published with different policies, the user can repeat the process.
+It’s possible to publish parts with different policies. For this, the user must only publish a limited selection of parts for which he can select a policy. For parts that must be published with different policies, the user can repeat the process.
 
 ***Note***:
-For more detailed information concerning the functionality of IRS please refer to [IRS documentation](https://eclipse-tractusx.github.io/item-relationship-service/docs/)
+For more detailed information concerning the functionality of IRS please refer to the [IRS documentation](https://eclipse-tractusx.github.io/item-relationship-service/docs/)
 
 ***[Work-in-progress]*** The user may also choose parts that have already been published - they can be republished with a different policy. The process for this is identical to the regular publishing process.
 
@@ -504,7 +490,7 @@ For more detailed information concerning the functionality of IRS please refer t
 | --- | --- |
 | 1 | Policies can be created by administrators at any time in the administration section of Trace-X. In order for policies to be used for notifications the administrator must pay attention to the BPN selection of the policies, as Trace-X will choose notification policies based on that. |
 | 2 | The user sends a notification to a connected BPN. |
-| 3 | First Trace-X checks the configured policies for any valid (not expired) policies that have the BPN of the receiver in their BPN selection. ***There can only be one valid policy for each BPN.*** |
+| 3 | First, Trace-X checks the configured policies for any valid (not expired) policies that have the BPN of the receiver in their BPN selection. ***There can only be one valid policy for each BPN.*** |
 | 4 | Trace-X takes the appropriate policyDefinition. |
 | 5 | Trace-X requests the catalog of the receiver BPN from their EDC. The catalog contains all policies of the BPN including the policies they use for sending and receiving policies. |
 | 6 | The receiver EDC returns the catalog. |
@@ -514,7 +500,7 @@ For more detailed information concerning the functionality of IRS please refer t
 | 11 | Finally, the notification will be sent to the receiving EDC. |
 | 12 | If no policies match, an error will be returned to the user. |
 
-#### No policies defined for Receiver BPNL when sending notifications
+#### No policies defined for receiver when sending notifications
 
 ![arc42_017](https://ds-ashanmugavel.github.io/traceability-foss/docs/assets/arc42/arc42_017.png)
 
@@ -524,7 +510,7 @@ If no policies are configured for the receiving BPN and a notification is sent t
 
 ![arc42_018](https://ds-ashanmugavel.github.io/traceability-foss/docs/assets/arc42/arc42_018.png)
 
-Policies always have an expiration time defined by the 'validUntil' timestamp. When a notification is sent and there are policies configured for the selected BPN with an expiration time in the past, Trace-X will throw an error. In that case, an administrator must either update the policy. Then the policy can be resent.
+Policies always have an expiration time defined by the 'validUntil' timestamp. When a notification is sent and there are policies configured for the selected BPN with an expiration time in the past, Trace-X will throw an error. In that case, an administrator must update or recreate the policy. Then the policy can be resent.
 
 #### Testing policies
 
@@ -534,6 +520,62 @@ To fix it, the administrator either has to replace the policy with a valid polic
 
 The same applies for sending and receiving parts only then the user must choose the created test policy manually.
 
+An example testing process will be described here with two companies Trace-X A and Trace-X B:
+
+##### Step 1
+
+In the initial state of Trace-X, only the default policy exists:
+
+![step-1](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/runtime-view/data-sovereignty/step-1.svg)
+
+The catalog offer contains the policy definition of the default policy:
+
+![step-1-1](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/runtime-view/data-sovereignty/step-1-1.svg)
+
+In this state both companies can send notifications to each other.
+
+##### Step 2
+
+In this example Trace-X B creates a new policy:
+
+![step-2](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/runtime-view/data-sovereignty/step-2.svg)
+
+![step-2-1](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/runtime-view/data-sovereignty/step-2-1.svg)
+
+Once created, the catalog offer will be updated using this policy:
+
+![step-2-2](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/runtime-view/data-sovereignty/step-2-2.svg)
+
+##### Step 3
+
+Since the catalog offer of Trace-X B was updated, Trace-X A won’t be able to send notifications to Trace-X B anymore:
+
+![step-3](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/runtime-view/data-sovereignty/step-3.svg)
+
+Trace-X A will take its own default policy and compare it to the catalog offer provided by Trace-X B, which will result in a mismatch.
+
+##### Step 4
+
+Since Trace-X B has no policy defined for Trace-X A’s BPN, it will compare its own default policy with the catalog offer provided Trace-X A which is identical to the default policy. So Trace-X B can still send notifications to Trace-X A:
+
+![step-4](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/runtime-view/data-sovereignty/step-4.svg)
+
+##### Step 5
+
+Now Trace-X A can create a new policy using the same constraints as Trace-X B’s policy:
+
+![step-5](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/runtime-view/data-sovereignty/step-5.svg)
+
+![step-5-1](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/runtime-view/data-sovereignty/step-5-1.svg)
+
+This policy will now be used when sending notifications to Trace-X B. Trace-X A’s catalog offer is unchanged.
+
+##### Step 6
+
+Trace-X A can now send notifications to Trace-X B again, since the policy matches with the provided catalog offer:
+
+![step-6](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/runtime-view/data-sovereignty/step-6.svg)
+
 ## Policies
 
 ### Overview
@@ -541,10 +583,10 @@ The same applies for sending and receiving parts only then the user must choose 
 #### Scenario 1: Startup interaction with the IRS policy store
 
 The Trace-X instance defines a constraint which is required for data consumption and provisioning.
-Trace-X retrieves all policies by IRS and validates if one of the policies contains the required constraint given by Trace-X.
+Trace-X retrieves all policies from the IRS and validates if one of the policies contains the required constraint given by Trace-X.
 If a policy with the constraint exists and is valid, the process ends. If the policy is not valid, it will create one with the given constraint.
 
-This sequence diagram describes the process of retrieving or creating policies within the IRS policy store based on the constraint given by Trace-X.
+This sequence diagram describes the process of retrieving or creating policies from the IRS policy store based on the constraint given by Trace-X:
 
 ![arc42_019](https://ds-ashanmugavel.github.io/traceability-foss/docs/assets/arc42/arc42_019.png)
 ```bash
@@ -572,27 +614,31 @@ This sequence diagram describes the process of retrieving the correct policy by 
 
 #### Scenario 3: Provisioning of notifications
 
-The Trace-X instance uses the policy which includes the defined constraint and reuses it for validation of catalog offers by the receiver EDC.
+The Trace-X instance uses the policy which includes the defined constraint for validation of catalog offers by the receiver EDC.
 
-This sequence diagram describes the process of how the policy with the defined constraint will be used for validation of the catalog offers from the receiver EDC.
+This sequence diagram describes the process of how the policy with the defined constraint will be used for validation of the catalog offers from the receiver EDC:
 
 ![arc42_021](https://ds-ashanmugavel.github.io/traceability-foss/docs/assets/arc42/arc42_021.png)
 
 #### Scenario 4: Provisioning of assets
 
-The Trace-X instance uses the policy which includes the defined constraint and reuses it for creating EDC assets.
+The Trace-X instance uses the policy which includes the defined constraint for creating EDC assets.
 
-This sequence diagram describes the process of how the policy with the defined constraint will be reused for registering EDC data assets.
+This sequence diagram describes the process of how the policy with the defined constraint will be used for registering EDC data assets:
 
 ![arc42_022](https://ds-ashanmugavel.github.io/traceability-foss/docs/assets/arc42/arc42_022.png)
 
-#### Scenario 5: Updating notification offers when creating/deleting/updating policies
+#### Scenario 5: Updating notification offers when creating / deleting / updating policies
 
 The Trace-X instance uses policies for creating the EDC catalog offers of notifications.
 These offers will be created on the following actions:
-- on Trace-X application startup - creating a policy for the own BPN - updating a policy for the own BPN - deleting a policy for the own BPN
 
-This sequence diagram describes the process of how the catalog offers are updated after policy update/create/delete
+* on Trace-X application startup
+* creating a policy for the own BPN
+* updating a policy for the own BPN
+* deleting a policy for the own BPN
+
+This sequence diagram describes the process of how the catalog offers are updated after policy update / create / delete:
 
 ```bash
 
@@ -608,7 +654,7 @@ An overview of the scheduler tasks configured in the system.
 |     |     |     |
 | --- | --- | --- |
 | Scheduler name | Execution interval | Description |
-| PublishAssetsJob | Every hour at 30min | Publishes assets in IN_SYNCHRONIZATION state to core services. The process combines 'as-built' and 'as-planned' assets and initiates their publication for synchronization in the traceability system. |
+| PublishAssetsJob | Every hour at 30min | Publishes assets in IN_SYNCHRONIZATION state to core services. The process combines as-built and as-planned assets and initiates their publication for synchronization in the traceability system. |
 | AssetsRefreshJob | Every 2 hours | Invokes the synchronization of asset shell descriptors with the decentralized registry. It ensures the latest asset information is fetched and updated in the system from external sources. |
 
 ## Deployment view
@@ -617,7 +663,7 @@ An overview of the scheduler tasks configured in the system.
 
 ## Entity-relationship model
 
-Please be informed that the 'as-planned' version currently lacks the database relations. However, kindly maintain the Entity-relationship model (ERM) in its current state.
+Please be informed that the 'as-planned' version currently lacks the database relations.
 
 ```bash
 image::./assets/arc42/arc42_023.png[]
@@ -645,7 +691,7 @@ The JWT token should also contain two claims:
 The list of values will be converted to roles by Trace-X.
 Currently, Trace-X API handles three roles: ***'User'*** and ***'Supervisor'*** and ***'Admin'.***
 
-You can have a look at the [rights and role matrix](https://github.com/eclipse-tractusx/traceability-foss/blob/main/docs/src/docs/administration/system-overview.adoc#rights-and-role-matrix-of-trace-x) in the system overview of the administration guide.
+The roles and their functions are documented in the [rights and role matrix](https://github.com/eclipse-tractusx/traceability-foss/blob/main/docs/src/docs/administration/system-overview.adoc#rights-and-role-matrix-of-trace-x) in the system overview of the administration guide.
 
 #### Trace-X as EDC client
 
@@ -658,12 +704,12 @@ The VC identifies and authenticates the EDC and is used to acquire access permis
 
 A second port, called the trusted port, has been introduced which can only be accessed by internal services within the Kubernetes cluster. This measure is implemented to handle APIs that are difficult to secure and involve several systems and processes. The trusted port ensures that only internal, trusted components can access these sensitive APIs, enhancing overall security.
 
-* Quality notification callback APIs (receive, update) - called by EDC Dataplane
-* Endpoint Data Reference callback API - called by EDC Controlplane
+* Quality notification callback APIs (receive, update) - called by EDC data plane
+* Endpoint Data Reference callback API - called by EDC control plane
 
 ### Credentials
 
-Credentials must never be stored in Git!
+Credentials must never be stored in GitHub!
 
 ## Architecture and design patterns
 
@@ -674,7 +720,7 @@ Credentials must never be stored in Git!
     * Optional: subdomain name (in case of inheritance) → following same structure as main domain
     * Mapper: holds the mapper of transforming domain models to response models
     * Service: holds the interface for implementation in the domain package
-    * REST: holds the controller for providing the api for the domain
+    * REST: holds the controller for providing the API for the domain
   * Domain
     * Optional: subdomain name (in case of inheritance)
     * Model: holds the domain model
@@ -685,8 +731,7 @@ Credentials must never be stored in Git!
     * Model: holds the technical entities
     * Repository: holds the data access layer
       * E.g. JPARepository / Impl
-  * All models (request / response) used in the API should be saved in the tx-model project.
-  To be reusable for cucumber testing.
+  * All models (request / response) used in the API should be saved in the tx-model project to be reusable for cucumber testing.
 
 ## "Under-the-hood" concepts
 
@@ -724,13 +769,13 @@ Of course, when using only RuntimeExceptions, this is not necessary - but those 
 
 There will always be some exception that cannot be handled inside the code correctly - or it may just have been unforeseen.
 A central fallback exception handler is required so all problems are visible in the log and the API always returns meaningful responses.
-In some cases, this is as simple as a HTTP 500.
+In some cases, this is as simple as an HTTP 500.
 
-##### Dont expose too much exception details over API
+##### Don't expose too much exception details over API
 
-It’s good to inform the user, why their request did not work, but only if they can do something about it (HTTP 4xx).
+It’s good to inform the user why their request did not work, but only if they can do something about it (HTTP 4xx).
 So in case of application problems, you should not expose details of the problem to the caller.
-This way, we avoid opening potential attack vectors.
+This way we avoid opening potential attack vectors.
 
 ## Development concepts
 
@@ -746,9 +791,9 @@ New submodules should be created with care and require a review by the team.
 
 The Maven build alone only leads up to the JAR artifact of Trace-X.
 To create Docker images, the Docker build feature is used.
-This copies all resources into a builder image, builds the software and creates a final Docker image at the end that can then be deployed.
+This copies all resources into a build image, builds the software and creates a final Docker image at the end that can then be deployed.
 
-Although the Docker image can be deployed in various ways, the standard solution are the provided Helm charts, which describe the required components as well.
+Although the Docker image can be deployed in various ways, the standard solution is to use the provided Helm charts, which describe the required components as well.
 
 ### Code generation
 
@@ -768,7 +813,7 @@ The generated OpenAPI specification file is automatically compared to a fixed, s
 
 ### Migration
 
-Data migration is handled by flyway.
+Data migration is handled by Flyway.
 
 ### Configurability
 
@@ -781,13 +826,13 @@ The operator must have total control over the configuration of Trace-X.
 
 ### Java style guide
 
-We generally follow the [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html).
+We generally follow the [Google Java style guide](https://google.github.io/styleguide/javaguide.html).
 
 ### API guide
 
-We generally follow the [OpenAPI Specification](https://swagger.io/specification/).
+We generally follow the [OpenAPI specification](https://swagger.io/specification/).
 
-### Docomentation style guide
+### Documentation style guide
 
 We generally follow the [Google developer documentation style guide](https://developers.google.com/style).
 
@@ -799,19 +844,19 @@ We generally follow the [Google developer documentation style guide](https://dev
 * Writing methods which provide a response to be better testable (avoid void if feasible).
 * Naming of unit tests are as follows:
 
-![unit_test_naming](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/unit_test_naming.png)
+![unit-test-naming](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/unit-test-naming.svg)
 
-* Use given/when/then pattern for unit test structuring.
+* Use the given / when / then pattern for unit test structuring.
 E.g:
 
-![given_when_then_pattern](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/given_when_then_pattern.png)
+![given-when-then-pattern](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/given-when-then-pattern.svg)
 
 #### Integration testing
 
 Each public API should have at least two integration tests (positive / negative).
-For integration testing, the `tx-backend/src/main/resources/application-integration.yml` is used.
+For integration testing, the file `tx-backend/src/main/resources/application-integration.yml` is used.
 Additionally, you need to have a local Docker environment running.
-For this, we recommend [Rancher Dektop](https://rancherdesktop.io/).
+For this, we recommend [Rancher Desktop](https://rancherdesktop.io/).
 
 ### Clean code
 
@@ -819,9 +864,9 @@ We follow the rules and behaviour of: <https://clean-code-developer.com/.>
 
 ### Secure coding standards
 
-As there is no other guideline of C-X, we fix any vulnerabilities, exposures, flaw detected by one of our SAST, DAST, Pentesting tools which is higher than "Very Low".
+As there is no other guideline of C-X, we fix any vulnerabilities, exposures, flaws detected by one of our SAST, DAST, pen testing tools which are higher than "Very Low".
 
-![vulnerability_level](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/vulnerability_level.png)
+![vulnerability-level](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/vulnerability-level.svg)
 
 ### Trace-X technical class responsibilities
 
@@ -829,7 +874,7 @@ As there is no other guideline of C-X, we fix any vulnerabilities, exposures, fl
 
 * Has only one dependency to a facade or a service or a validator annotation
 * Has no own logic
-* Includes the swagger documentation annotations
+* Includes the Swagger documentation annotations
 * Has an integration test class
 * Uses a static mapper to transform a domain model into the response model
 * Returns a ResponseEntity&lt;T>
@@ -873,7 +918,7 @@ As there is no other guideline of C-X, we fix any vulnerabilities, exposures, fl
 * Using builder pattern
   * Currently, we are using the constructor to create objects in our application.
   Main reason is to provide immutable objects.
-  * As the handling with big loaded constructors is not easy and error prone, it’s recommended to use the builder pattern to have a clear understanding about what we are creating at the point of implementation.
+  * As the handling with big loaded constructors is not easy and error-prone, it’s recommended to use the builder pattern to have a clear understanding about what we are creating at the point of implementation.
 * Using lombok for annotation processing
 
 ## Operational concepts
@@ -893,7 +938,7 @@ Once the Docker image has been built, these values can only be overwritten using
 ##### Helm chart
 
 The most relevant config properties are exposed as environment variables and must be set in the Helm chart for the application to be able to run.
-Check the Trace-X Helm chart in Git for all available variables.
+Check the Trace-X Helm chart in GitHub for all available variables.
 
 ### Scaling
 
@@ -921,34 +966,34 @@ Currently, there is on monitoring supported in Trace-X.
 
 Trace-X uses the following table design to build consistent and user-friendly tables:
 
-![table-design](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-design.png)
+![table-design](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-design.svg)
 
 | Component | Description | Example |
 | --- | --- | --- |
-| Actions | * Black icons * When an action cannot be executed for any reason, the icon turns grey * A tooltip is shown when hovering over an executable action to describe it * A tooltip is shown when hovering over a disabled action to describe the reason why it can’t be executed | ![table-actions](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-actions.png) |
-| Action menus | * Opens when clicking on a three-dot menu * Disappears, when clicking anywhere outside the menu * List of action icons with text labels * The three-dot menu is sticky when used inside the table for single-item actions | ![table-action-menus](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-action-menus.png) |
-| Multi-select box | * Clicking on it when no items are selected, selects all items on the current page * Clicking on it when some items are selected (but not all), selects all items on the current page * Clicking on it when all items are selected, deselects all items on the current page * Clicking on the small arrow opens a menu for clearing the page selection or the entire selection * The menu disappears, when clicking anywhere outside the menu * Part of the column header row -> Sticky on top next to column headers | ![table-multi-select-box](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-multi-select-box.png) |
+| Actions | * Black icons * When an action cannot be executed for any reason, the icon turns grey * A tooltip is shown when hovering over an executable action to describe it * A tooltip is shown when hovering over a disabled action to describe the reason why it can’t be executed | ![table-actions](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-actions.svg) |
+| Action menus | * Opens when clicking on a three-dot menu * Disappears, when clicking anywhere outside the menu * List of action icons with text labels * The three-dot menu is sticky when used inside the table for single-item actions | ![table-action-menus](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-action-menus.svg) |
+| Multi-select box | * Clicking on it when no items are selected, selects all items on the current page * Clicking on it when some items are selected (but not all), selects all items on the current page * Clicking on it when all items are selected, deselects all items on the current page * Clicking on the small arrow opens a menu for clearing the page selection or the entire selection * The menu disappears, when clicking anywhere outside the menu * Part of the column header row -> Sticky on top next to column headers | ![table-multi-select-box](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-multi-select-box.svg) |
 | Selection box | * Clicking on it toggles item selection |  |
 | Selection count | * Shows selection count of the current page |  |
-| Column header | * Shows the column title * Hovering over it shows a tooltip that describes sorting behaviour * Clicking on it toggles sorting * Sticky on top | ![table-sorting-tooltip](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-sorting-tooltip.png) Ascending sorting: ![table-sorting-ascending](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-sorting-ascending.png) Descending sorting: ![table-sorting-descending](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-sorting-descending.png) |
-| Filter | * Can search for any string * Results are shown directly without having to press enter * Results are shown as a sorted list (ascending) * Selected results are shown on top of unselected ones * The checkbox inside the search field selects or deselects every result * The cross inside the search field resets the search and the filter * When the filter is active, 'All' changes to the filtered value (+ the number of other filters) * For date values, the search is replaced with a date picker * Sticky on top below column headers | ![table-filter](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-filter.png) Date filter: ![table-filter-date](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-filter-date.png) |
+| Column header | * Shows the column title * Hovering over it shows a tooltip that describes sorting behaviour * Clicking on it toggles sorting * Sticky on top | ![table-sorting-tooltip](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-sorting-tooltip.svg) Ascending sorting: ![table-sorting-ascending](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-sorting-ascending.svg) Descending sorting: ![table-sorting-descending](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-sorting-descending.svg) |
+| Filter | * Can search for any string * Results are shown directly without having to press enter * Results are shown as a sorted list (ascending) * Selected results are shown on top of unselected ones * The checkbox inside the search field selects or deselects every result * The cross inside the search field resets the search and the filter * When the filter is active, 'All' changes to the filtered value (+ the number of other filters) * For date values, the search is replaced with a date picker * Sticky on top below column headers | ![table-filter](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-filter.svg) Date filter: ![table-filter-date](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-filter-date.svg) |
 | Quick filter | * Used to quickly filter for specific values * Independent of regular filters * Work exclusively - only one filter can be selected at a time * Click on the currently active quick filter to deactivate it |  |
-| Table column settings | * Opens up as an overlay * Clicking on Save, the cross or anywhere outside the overlay will close the overlay (only saving changes when clicking Save) * Selecting/deselecting columns makes them visible/invisible in the table * The order of the columns can be changed by selecting the column title and using the arrow buttons * Using the circle arrow icon resets the column visibility and column order | ![table-column-settings](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-column-settings.png) |
+| Table column settings | * Opens up as an overlay * Clicking on Save, the cross or anywhere outside the overlay will close the overlay (only saving changes when clicking Save) * Selecting/deselecting columns makes them visible/invisible in the table * The order of the columns can be changed by selecting the column title and using the arrow buttons * Using the circle arrow icon resets the column visibility and column order | ![table-column-settings](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-column-settings.svg) |
 | Full-width toggle | * Used to switch between full-width mode or variable-width mode |  |
 | Scrollbars | * Only visible/active when data exceeds the visible space * Sticky elements stay visible regardless of scroll position |  |
-| Page size selector | * Shows the currently selected page size * When clicking on it, a dropdown opens that shows available page size options * Clicking any option will select that option and close the dropdown * Clicking anywhere outside the dropdown closes the dropdown without applying any changes * Three options are always available | ![table-page-size-selector](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-page-size-selector.png) |
+| Page size selector | * Shows the currently selected page size * When clicking on it, a dropdown opens that shows available page size options * Clicking any option will select that option and close the dropdown * Clicking anywhere outside the dropdown closes the dropdown without applying any changes * Three options are always available | ![table-page-size-selector](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-page-size-selector.svg) |
 | Page information | * Shows information about the amount of items on the current page and the total amount of items |  |
-| Page controls | * Used to switch between pages * Controls are: First page, previous page, next page, last page * Hovering over the controls shows a tooltip that labels each control | ![table-page-controls](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-page-controls.png) |
+| Page controls | * Used to switch between pages * Controls are: First page, previous page, next page, last page * Hovering over the controls shows a tooltip that labels each control | ![table-page-controls](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-page-controls.svg) |
 
 In addition, following tables are used within Trace-X:
 
 When the data is not as complex and/or extensive and single-item actions are not needed:
 
-![table-small](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-small.png)
+![table-small](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-small.svg)
 
 When data must only be shown and no actions are needed:
 
-![table-data-only](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-data-only.png)
+![table-data-only](https://raw.githubusercontent.com/eclipse-tractusx/traceability-foss/main/docs/src/images/arc42/cross-cutting/user-experience/table-data-only.svg)
 
 ## Quality requirements
 
@@ -966,16 +1011,16 @@ The initial letters of the scenario identifiers (IDs) in the following table eac
 
 | ID | Scenario |
 | --- | --- |
-| M01 | A developer with basic knowledge of the traceability use case looks for an introduction to the traceability architecture. He or she gets the idea of essential design very fast. |
-| M02 | A senior developer looks for a reference implementation of the traceability use case functionalities. He or she gets it within the source code. |
-| M03 | A developer wants to implement new features. He or she is able to add it to the source code easily. |
-| M04 | A developer wants to implement a new frontend or change some components. The efforts can be reduced by using the standardized API endpoints to do so. |
-| I01 | A user wants to switch from FOSS application to a COTS application or the other way round. This is possible since the application is interoperable with other applications within the CX network. |
+| M01 | Developers with basic knowledge of the traceability use case look for an introduction to the traceability architecture. They get the idea of essential design very fast. |
+| M02 | Senior developers look for a reference implementation of the traceability use case functionalities. They get it within the source code. |
+| M03 | Developers want to implement new features. They are able to add it to the source code easily. |
+| M04 | Developers want to implement a new frontend or change some components. The efforts can be reduced by using the standardized API endpoints to do so. |
+| I01 | Users want to switch from a FOSS application to a COTS application or the other way round. This is possible since the application is interoperable with other applications within the CX network. |
 | F01 | The application uses the Catena-X standards to ensure the correct interoperability and exchange with other participants. |
 | F02 | An OEM or tier n supplier needs more information regarding specific parts. He can mark the parts in question and send a top-down notification (quality investigation) to the next entity / the partner. |
 | F03 | A company wants to have more transparency and a visualized status of the supply / value chain. By using the application they are enabled to work with the structures and enable new features / functionalities. |
-| F04 | Notifications are sent using the EDC to ensure interoperability and reliability to the CX network. |
-| E01 | Notifications between traceability apps need to be send out and received within a specified timeframe to minimize the negative impact of e.g. recalled serialized products/batches on the value chain. |
+| F04 | Notifications are sent using the EDC to ensure interoperability with the CX network. |
+| E01 | Notifications between traceability apps need to be sent and received within a specified timeframe to minimize the negative impact of e.g. recalled serialized products / batches on the value chain. |
 
 ## Glossary
 
@@ -991,7 +1036,7 @@ The initial letters of the scenario identifiers (IDs) in the following table eac
 | Data Sovereignty | Ability to keep control over own data, that is shared with other participants |
 | EDC | ***E****clipse **D****ataspace **C***onnector. The connector version used in Catena-X |
 | FOSS | ***F****ree and **O****pen **S****ource **S***oftware |
-| Interoperability | Communication and interaction with other components or Catena-X partners/players |
+| Interoperability | Communication and interaction with other components or Catena-X partners / players |
 | IRS | ***I****tem **R****elationship **S***ervice. Component to provide data chains. [IRS architecture documentation (arc42)](https://eclipse-tractusx.github.io/item-relationship-service/docs/arc42/) |
 | SME | ***S****mall / **M****edium **E***nterprise |
 | Trace-X | Proper name of open-source software application of Catena-X use case traceability |
