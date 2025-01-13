@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: "Download diff artifacts"
+      - name: "Download diff artifactss"
         uses: actions/download-artifact@v4
         with:
           name: pull-request-diff
