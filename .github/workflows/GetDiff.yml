@@ -45,6 +45,12 @@ jobs:
           path: diff.txt
           key: diff-${{ github.event.pull_request.number }}
 
+      - name: "Upload diff artifact"
+        uses: actions/upload-artifact@v3
+        with:
+          name: pull-request-diff
+          path: diff.txt
+
   process_after_merge:
     if: ${{ github.event.pull_request.merged == true }}
 
