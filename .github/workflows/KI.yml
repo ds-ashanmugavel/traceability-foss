@@ -1,0 +1,37 @@
+name: "Retrieve Diff File"
+
+on:
+  pull_request:
+    types: [closed] # Beim Schließen des PRs
+
+jobs:
+  retrieve:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Fetch and checkout `pr-diffs` branch
+        run: |-
+          git fetch origin pr-diffs:pr-diffs
+          git checkout pr-diffs
+
+      - name: Find and retrieve diff file
+        id: find_diff
+        run: |-
+          PR_ID="${{ github.event.pull_request.number }}"
+          DIFF_FILE="diffs/diff-$PR_ID.txt"
+
+          if [ -f "$DIFF_FILE" ]; then
+            echo "Diff file found: $DIFF_FILE"
+            echo "diff_file_path=$DIFF_FILE" >> $GITHUB_ENV
+          else
+            echo "No diff file found for PR ID $PR_ID"
+            exit 1
+          fi
+
+      - name: Upload diff file
+        uses: actions/upload-artifact@v4
+        with:
+          name: pull-request-diff
+          path: ${{ env.diff_file_path }}
