@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     name: Cache Changed Files
 
+    outputs:
+      changed-files-cache: ${{ steps.save-cache.outputs.changed-files-cache }}
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -32,11 +35,13 @@ jobs:
           restore-keys: ${{ github.event.pull_request.number }}-
 
       - name: Save Changed Files to Cache
+        id: save-cache
         run: |
           echo '${{ steps.changed-files.outputs.all_changed_files }}' > changed-files-cache.json
-          cat changed-files-cache.json
+          echo "changed-files-cache=$(cat changed-files-cache.json)" >> $GITHUB_ENV
 
   generate-changelog:
+    needs: cache-changed-files
     if: github.event.pull_request.merged == true  # Nur wenn der PR gemerged wird
     runs-on: ubuntu-latest
     name: Generate Changelog
@@ -46,21 +51,10 @@ jobs:
         uses: actions/checkout@v4
 
 
-      - name: Restore Changed Files from Cache
-        uses: actions/cache@v3
-        with:
-          path: changed-files-cache.json
-          key: ${{ github.event.pull_request.number }}-changed-files
-          restore-keys: ${{ github.event.pull_request.number }}-
-
-      - name: Debug Restored Cache
+      - name: Access Changed Files
         run: |
-         if [ -f changed-files-cache.json ]; then
-           echo "Cache restored successfully:"
-           cat changed-files-cache.json
-         else
-            echo "Cache not restored."
-         fi
+          echo "Changed files from previous job:"
+          echo "${{ needs.cache-changed-files.outputs.changed-files-cache }}"
 
       - name: Fetch Pull Request Data
         id: fetch_pr
