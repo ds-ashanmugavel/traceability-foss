@@ -41,7 +41,7 @@ jobs:
           echo "diff=$(cat diff.txt | tr '\n' ' ')" >> $GITHUB_ENV
 
       - name: "Commit and push files"
-        run: |-
+        run: |
 
                BRANCH_NAME="pr-diffs" # Define the branch where diffs are stored
 
