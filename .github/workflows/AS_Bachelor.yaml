@@ -34,4 +34,11 @@ jobs:
           echo "Diff Content:"
           cat pr_diff.txt
 
+      - name: Upload Diff as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: pr-diff
+          path: pr_diff.txt
+
+
 
