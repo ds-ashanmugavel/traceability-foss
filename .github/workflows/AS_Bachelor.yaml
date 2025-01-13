@@ -6,7 +6,7 @@ on:
       - opened
       - reopened
       - synchronize  # Bei jedem Push zum PR
-      - closed       # Wenn der PR geschlossen (gemerged) wird
+      - closed       # Wenn der PR geschlossen (gemerged) wirdwee
 
 jobs:
   cache-changed-files:
