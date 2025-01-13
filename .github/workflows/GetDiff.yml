@@ -1,0 +1,63 @@
+name: "Get Diff"
+
+on:
+  pull_request:
+    paths-ignore:
+      - "*.md"
+      - "LICENSE"
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v3
+      - name: "Get diff of the pull request"
+        id: get_diff
+        shell: bash
+        env:
+          PULL_REQUEST_HEAD_REF: "${{ github.event.pull_request.head.ref }}"
+        run: |-
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_BODY="${{ github.event.pull_request.body }}"
+
+          git fetch origin "${{ env.PULL_REQUEST_HEAD_REF }}:${{ env.PULL_REQUEST_HEAD_REF }}"
+          git checkout "${{ env.PULL_REQUEST_HEAD_REF }}"
+          git fetch origin "${{ github.event.pull_request.base.ref }}:${{ github.event.pull_request.base.ref }}"
+
+          git diff "origin/${{ github.event.pull_request.base.ref }}" > "raw_diff.txt"
+
+
+          echo "Pull Request Title: $PR_TITLE" > "diff.txt"
+          echo "" >> "diff.txt"
+          echo "Pull Request Description:" >> "diff.txt"
+          echo "$PR_BODY" >> "diff.txt"
+          echo "" >> "diff.txt"
+          echo "Diff:" >> "diff.txt"
+          cat "raw_diff.txt" >> "diff.txt"
+
+          echo "diff=$(cat diff.txt | tr '\n' ' ')" >> $GITHUB_ENV
+
+      - name: "Upload diff.txt as artifact"
+        uses: actions/upload-artifact@v3
+        with:
+         name: diff
+         path: diff.txt
+
+  process_after_merge:
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: diff
+
+      - name: Simulate OpenAI Call
+        run: |
+          echo "Simulating OpenAI Call..."
+          echo "Contents of diff.txt:"
+          cat diff.txt
+          echo "Simulated prompt would be sent here."
