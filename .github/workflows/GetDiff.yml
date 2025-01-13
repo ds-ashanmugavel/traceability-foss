@@ -46,7 +46,7 @@ jobs:
           key: diff-${{ github.event.pull_request.number }}
 
       - name: "Upload diff artifact"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pull-request-diff
           path: diff.txt
@@ -61,6 +61,11 @@ jobs:
           path: diff.txt
           key: diff-${{ github.event.pull_request.number }}
 
+      - name: "Upload diff artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: pull-request-diff
+          path: diff.txt
 
       - name: Simulate OpenAI Call
         run: |
