@@ -8,7 +8,7 @@ jobs:
   review:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
     steps:
       - uses: actions/checkout@v3
@@ -38,27 +38,6 @@ jobs:
 
           echo "diff=$(cat diff.txt | tr '\n' ' ')" >> $GITHUB_ENV
 
-      - name: "Commit and push files"
-        run: |-
-         PR_ID="${{ github.event.pull_request.number }}" # Pull Request ID
-         BRANCH_NAME="pr-diffs" # Define the branch where diffs are stored
-
-         git config --global user.name "github-actions[bot]"
-         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-        # Create a new branch if it doesn't exist
-         git fetch origin $BRANCH_NAME || git checkout -b $BRANCH_NAME
-         git checkout $BRANCH_NAME
-
-        # Copy diff file
-          mv "diff-$PR_ID.txt" "diffs/diff-$PR_ID.txt"
-
-        # Add and commit changes
-          git add diffs/
-          git commit -m "Add diff for PR #$PR_ID"
-
-        # Push changes
-          git push origin $BRANCH_NAME
 
       - name: Upload diff file
         uses: actions/upload-artifact@v4
