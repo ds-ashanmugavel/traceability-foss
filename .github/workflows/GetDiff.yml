@@ -38,7 +38,7 @@ jobs:
 
           echo "diff=$(cat diff.txt | tr '\n' ' ')" >> $GITHUB_ENV
 
-      - name: "Commit and push file"
+      - name: "Commit and push files"
         run: |-
          PR_ID="${{ github.event.pull_request.number }}" # Pull Request ID
          BRANCH_NAME="pr-diffs" # Define the branch where diffs are stored
