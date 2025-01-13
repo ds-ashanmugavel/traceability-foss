@@ -40,12 +40,6 @@ jobs:
 
           echo "diff=$(cat diff.txt | tr '\n' ' ')" >> $GITHUB_ENV
 
-      - name: "Commit and push files"
-        run: |
-           git config user.name "Update branch"
-           git config user.email github-actions@github.com
-           git checkout changelog
-
 
 
       - name: Upload diff file
