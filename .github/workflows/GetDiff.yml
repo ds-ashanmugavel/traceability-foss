@@ -2,9 +2,7 @@ name: "Get Diff"
 
 on:
   pull_request:
-    paths-ignore:
-      - "*.md"
-      - "LICENSE"
+    types: [opened, edited, synchronize, closed]
 
 jobs:
   review:
@@ -47,7 +45,8 @@ jobs:
          path: diff.txt
 
   process_after_merge:
-    if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    if: ${{ github.event.pull_request.merged == true }}
+
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact
