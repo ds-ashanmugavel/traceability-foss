@@ -42,7 +42,7 @@ jobs:
 
       - name: "Commit and push files"
         run: |-
-               PR_ID="${{ github.event.number }}" # Pull Request ID
+
                BRANCH_NAME="pr-diffs" # Define the branch where diffs are stored
 
                git config user.name "github-actions"
@@ -53,11 +53,11 @@ jobs:
                git checkout $BRANCH_NAME
 
           # Copy diff file
-               mv "diff-$PR_ID.txt" "diffs/diff-$PR_ID.txt"
+               mv "diff" "diffs/diff.txt"
 
           # Add and commit changes
                git add diffs/
-               git commit -m "Add diff for PR #$PR_ID"
+               git commit -m "Add diff for PR"
 
           # Push changes
                git push origin $BRANCH_NAME
