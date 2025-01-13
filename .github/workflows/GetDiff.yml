@@ -8,7 +8,7 @@ jobs:
   review:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
       pull-requests: write
     steps:
       - uses: actions/checkout@v3
@@ -38,47 +38,25 @@ jobs:
 
           echo "diff=$(cat diff.txt | tr '\n' ' ')" >> $GITHUB_ENV
 
-      - name: Commit diff.txt to pr-diffs branch
-        run: |-
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git checkout -b pr-diffs || git checkout pr-diffs
-          mv diff.txt "${{ github.event.pull_request.number }}-diff.txt"
-          git add "${{ github.event.pull_request.number }}-diff.txt"
-          git commit -m "Save diff for PR #${{ github.event.pull_request.number }}"
-          git push origin pr-diffs
-
-      - name: Print current working directory
-        run: pwd
-
-      - name: Check if diff.txt exists
-        run: ls -la
-
-      - name:  Show diff.txt content
-        run: cat diff.txt
-
-      - name:  Check file permissions
-        run: ls -l diff.txt
-
       - name: "Upload diff.txt as artifact"
         uses: actions/upload-artifact@v3
         with:
-         name: diff
-         path: diff.txt
+          name: diff
+          path: diff.txt
 
   process_after_merge:
     if: ${{ github.event.pull_request.merged == true }}
+
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Download diff from pr-diffs branch
-        run: |-
-                  git fetch origin pr-diffs:pr-diffs
-                  git checkout pr-diffs
-                  DIFF_FILE="${{ github.event.pull_request.number }}-diff.txt"
-                  if [ -f "$DIFF_FILE" ]; then
-                    cat "$DIFF_FILE"
-                  else
-                    echo "No diff file found for PR #${{ github.event.pull_request.number }}"
-                    exit 1
-                  fi
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: diff
+
+      - name: Simulate OpenAI Call
+        run: |
+          echo "Simulating OpenAI Call..."
+          echo "Contents of diff.txt:"
+          cat diff.txt
+          echo "Simulated prompt would be sent here."
