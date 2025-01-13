@@ -2,9 +2,7 @@ name: "Get Diff"
 
 on:
   pull_request:
-    paths-ignore:
-      - "*.md"
-      - "LICENSE"
+    types: [opened, edited, synchronize, closed]
 
 jobs:
   review:
