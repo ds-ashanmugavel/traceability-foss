@@ -20,11 +20,24 @@ jobs:
         env:
           PULL_REQUEST_HEAD_REF: "${{ github.event.pull_request.head.ref }}"
         run: |-
+
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_BODY="${{ github.event.pull_request.body }}"
+
           git fetch origin "${{ env.PULL_REQUEST_HEAD_REF }}:${{ env.PULL_REQUEST_HEAD_REF }}"
           git checkout "${{ env.PULL_REQUEST_HEAD_REF }}"
           git fetch origin "${{ github.event.pull_request.base.ref }}:${{ github.event.pull_request.base.ref }}"
           git diff "origin/${{ github.event.pull_request.base.ref }}" > "diff.txt"
-          cat diff.txt
+
+
+          echo "Pull Request Title: $PR_TITLE" > "final_diff.txt"
+          echo "Pull Request Description:" >> "final_diff.txt"
+          echo "$PR_BODY" >> "final_diff.txt"
+          echo "" >> "final_diff.txt"
+          echo "Diff:" >> "final_diff.txt"
+          cat "diff.txt" >> "final_diff.txt"
+
+
           echo "diff=$(cat diff.txt | tr '\n' ' ')" >> $GITHUB_ENV
 
       - name: "Upload diff.txt as artifact"
