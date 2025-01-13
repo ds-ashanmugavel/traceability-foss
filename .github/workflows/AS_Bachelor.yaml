@@ -3,42 +3,71 @@ name: Generate Changelog
 on:
   pull_request:
     types:
-      - closed
+      - synchronize  # Bei jedem Push zum PR
+      - closed       # Wenn der PR geschlossen (gemerged) wird
 
 jobs:
-  generate-changelog:
-    if: github.event.pull_request.merged == true  # Nur bei gemergten Pull Requests
+  cache-changed-files:
+    if: github.event.action == 'synchronize'  # Nur bei Pushes in den PR
     runs-on: ubuntu-latest
+    name: Cache Changed Files
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Changed Files
+        id: changed-files
+        uses: tj-actions/changed-files@v14.6
+
+      - name: Cache Changed Files
+        uses: actions/cache@v3
+        with:
+          path: changed-files-cache.json
+          key: ${{ github.event.pull_request.number }}-changed-files
+          restore-keys: ${{ github.event.pull_request.number }}-
+
+      - name: Save Changed Files to Cache
+        run: |
+          echo '${{ steps.changed-files.outputs.all_changed_files }}' > changed-files-cache.json
+          cat changed-files-cache.json
+
+  generate-changelog:
+    if: github.event.pull_request.merged == true  # Nur wenn der PR gemerged wird
+    runs-on: ubuntu-latest
+    name: Generate Changelog
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+
+      - name: Restore Changed Files from Cache
+        uses: actions/cache@v3
+        with:
+          path: changed-files-cache.json
+          key: ${{ github.event.pull_request.number }}-changed-files
+          restore-keys: ${{ github.event.pull_request.number }}-
+
       - name: Fetch Pull Request Data
         id: fetch_pr
         run: |
-           echo "PR_TITLE=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
-           echo "PR_BODY=${{ github.event.pull_request.body }}" >> $GITHUB_ENV
-           echo "PR_AUTHOR=${{ github.event.pull_request.user.login }}" >> $GITHUB_ENV
-
-      - name: Generate Diff
-        run: |
-          git fetch origin ${{ github.event.pull_request.head.sha }}
-          git diff origin/main..${{ github.event.pull_request.head.sha }} > pr_diff.txt
+          echo "PR_TITLE=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
+          echo "PR_BODY=${{ github.event.pull_request.body }}" >> $GITHUB_ENV
+          echo "PR_AUTHOR=${{ github.event.pull_request.user.login }}" >> $GITHUB_ENV
 
       - name: Output Fetched Data
         run: |
           echo "Pull Request Title: $PR_TITLE"
           echo "Pull Request Body: $PR_BODY"
           echo "Pull Request Author: $PR_AUTHOR"
-          echo "Diff Content:"
-          cat pr_diff.txt
+          echo "Last Cached Changed Files:"
+          cat changed-files-cache.json
 
-      - name: Upload Diff as Artifact
+      - name: Upload Diff and Metadata as Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: pr-diff
-          path: pr_diff.txt
-
-
-
+          name: pr-data
+          path: changed-files-cache.json
