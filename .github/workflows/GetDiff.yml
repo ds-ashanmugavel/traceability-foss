@@ -1,4 +1,4 @@
-name: "Get Diff"
+name: "Get Diffs"
 
 on:
   pull_request:
