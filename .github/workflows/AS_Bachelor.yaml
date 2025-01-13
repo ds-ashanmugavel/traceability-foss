@@ -14,14 +14,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Extract PR Details
-        id: pr_details
-        uses: tibdex/github-app-token@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          pr-number: ${{ github.event.pull_request.number }}
-
       - name: Fetch Pull Request Data
         id: fetch_pr
         run: |
@@ -41,3 +33,5 @@ jobs:
           echo "Pull Request Author: $PR_AUTHOR"
           echo "Diff Content:"
           cat pr_diff.txt
+
+
