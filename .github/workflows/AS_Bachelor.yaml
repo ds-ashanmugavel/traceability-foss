@@ -53,6 +53,15 @@ jobs:
           key: ${{ github.event.pull_request.number }}-changed-files
           restore-keys: ${{ github.event.pull_request.number }}-
 
+      - name: Debug Restored Cache
+        run: |
+         if [ -f changed-files-cache.json ]; then
+           echo "Cache restored successfully:"
+           cat changed-files-cache.json
+         else
+            echo "Cache not restored."
+         fi
+
       - name: Fetch Pull Request Data
         id: fetch_pr
         run: |
