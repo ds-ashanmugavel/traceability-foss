@@ -39,12 +39,6 @@ jobs:
 
           echo "diff=$(cat diff.txt | tr '\n' ' ')" >> $GITHUB_ENV
 
-      - name: Cache diff artifact
-        uses: actions/cache@v4
-        with:
-          path: diff.txt
-          key: diff-${{ github.event.pull_request.number }}
-
       - name: "Upload diff artifact"
         uses: actions/upload-artifact@v4
         with:
@@ -56,13 +50,9 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/cache@v3
-        with:
-          path: diff.txt
-          key: diff-${{ github.event.pull_request.number }}
 
-      - name: "Upload diff artifact"
-        uses: actions/upload-artifact@v4
+      - name: "Download diff artifact"
+        uses: actions/download-artifact@v4
         with:
           name: pull-request-diff
           path: diff.txt
