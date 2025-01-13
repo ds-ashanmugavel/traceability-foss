@@ -39,25 +39,14 @@ jobs:
 
           echo "diff=$(cat diff.txt | tr '\n' ' ')" >> $GITHUB_ENV
 
-      - name: "Upload diff artifact"
-        uses: actions/upload-artifact@v4
+      - name: Upload diff artifact
+        uses: actionsupload-artifact@v4
         with:
           name: pull-request-diff
-          path: diff.txt
 
-  process_after_merge:
-    if: ${{ github.event.pull_request.merged == true }}
 
-    runs-on: ubuntu-latest
-    steps:
-
-      - name: "Download diff artifact"
-        uses: actions/download-artifact@v4
-        with:
-          name: pull-request-diff
-          path: diff.txt
-
-      - name: Simulate OpenAI Call
+      - name: "Workflow finished"
+        if: ${{ github.event.pull_request.merged == true }}
         run: |
           echo "Simulating OpenAI Call..."
           echo "Contents of diff.txt:"
