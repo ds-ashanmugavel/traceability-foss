@@ -43,7 +43,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: diff.txt
-          path: ./
+          path: ./diff.txt
 
 
       - name: "Workflow finished"
