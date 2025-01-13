@@ -48,6 +48,18 @@ jobs:
           git commit -m "Save diff for PR #${{ github.event.pull_request.number }}"
           git push origin pr-diffs
 
+      - name: Print current working directory
+        run: pwd
+
+      - name: Check if diff.txt exists
+        run: ls -la
+
+      - name:  Show diff.txt content
+        run: cat diff.txt
+
+      - name:  Check file permissions
+        run: ls -l diff.txt
+
       - name: "Upload diff.txt as artifact"
         uses: actions/upload-artifact@v3
         with:
