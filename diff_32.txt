@@ -1,0 +1,93 @@
+Pull Request Title: Feature ba
+
+Pull Request Description:
+ewffe2f
+
+resolves traceability-foss#
+
+
+Diff:
+diff --git a/.github/workflows/GetDiff.yml b/.github/workflows/GetDiff.yml
+index 33654dc5a..87fb27176 100644
+--- a/.github/workflows/GetDiff.yml
++++ b/.github/workflows/GetDiff.yml
+@@ -1,4 +1,4 @@
+-name: "Get Diffs"
++name: "Save Changelog File"
+ 
+ on:
+   pull_request:
+@@ -19,6 +19,10 @@ jobs:
+         run: |-
+           PULL_NUMBER=${{ github.event.pull_request.number }}
+           FILE_NAME="diff_${PULL_NUMBER}.txt"
++          HEAD_REF="${{ github.event.pull_request.head.ref }}"
++
++          git config user.name "GitHub Actions Bot"
++          git config user.email "github-actions@github.com"
+ 
+ 
+           if git ls-remote --exit-code origin changelog; then
+@@ -29,13 +33,20 @@ jobs:
+             if [ -f "$FILE_NAME" ]; then
+                echo "Deleting existing diff file."
+                rm $FILE_NAME
++                git add "$FILE_NAME"
++                git commit -m "Removed existing diff file: $FILE_NAME"
++                git push origin changelog
+             else
+-              echo "File does not exist: $FILE_NAME"
++                echo "File does not exist: $FILE_NAME"
+             fi
+           else
+             echo "Branch 'changelog' does not exist. Skipping file deletion."
+           fi
+-      - name: "Get diff of the pull request"
++
++          echo "Switching back to the PR branch: $PR_BRANCH"
++          git fetch origin "$HEAD_REF:$HEAD_REF"
++          git checkout $HEAD_REF
++      - name: "Get diff from pull request"
+         id: get_diff
+         shell: bash
+         run: |-
+@@ -45,7 +56,7 @@ jobs:
+           BASE_REF="${{ github.event.pull_request.base.ref }}"
+           HEAD_REF="${{ github.event.pull_request.head.ref }}"
+ 
+-          git fetch origin "$HEAD_REF:$HEAD_REF"
++
+           git fetch origin "$BASE_REF:$BASE_REF"
+ 
+           git diff "origin/$BASE_REF" > "raw_diff.txt"
+@@ -58,6 +69,7 @@ jobs:
+           echo "" >> "$FILE_NAME"
+           echo "Diff:" >> "$FILE_NAME"
+           cat "raw_diff.txt" >> "$FILE_NAME"
++          rm raw_diff.txt
+ 
+           echo "DIFF_FILE=$FILE_NAME" >> $GITHUB_ENV
+ 
+@@ -70,14 +82,19 @@ jobs:
+           git config user.email "github-actions@github.com"
+ 
+           if git ls-remote --exit-code origin changelog; then
+-            echo "already checkout"
++            echo "Changelog checkout"
++            git checkout changelog
+           else
+             git checkout -b changelog
+           fi
+ 
+           git add $DIFF_FILE
+-          git commit -m "Update diff file for PR #${PULL_NUMBER}"
+-          git push origin changelog
++          if git diff-index --quiet HEAD; then
++            echo "No changes to commit."
++          else
++            git commit -m "Update diff file for PR #${PULL_NUMBER}"
++            git push origin changelog
++          fi
+ 
+       - name: Upload diff file
+         uses: actions/upload-artifact@v4
