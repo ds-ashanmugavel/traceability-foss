@@ -59,6 +59,10 @@ jobs:
               git push -u origin changelog
             fi
 
+            if [ -f "diff_$PULL_NUMBER" ]; then
+              echo "Deleting existing diff file."
+              rm "diff_$PULL_NUMBER"
+            fi
 
             git add .
             git commit -m "Update diff_$PULL_NUMBER"
@@ -67,5 +71,5 @@ jobs:
       - name: Upload diff file
         uses: actions/upload-artifact@v4
         with:
-          name: diff.txt
-          path: ./diff.txt
+          name: diff_$PULL_NUMBER.txt
+          path: ./diff_$PULL_NUMBER.txt
