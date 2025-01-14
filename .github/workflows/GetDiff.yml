@@ -1,4 +1,4 @@
-name: "Get Diffs"
+name: "Save Changelog File"
 
 on:
   pull_request:
