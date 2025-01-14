@@ -49,7 +49,7 @@ jobs:
           BASE_REF="${{ github.event.pull_request.base.ref }}"
           HEAD_REF="${{ github.event.pull_request.head.ref }}"
 
-          git fetch origin "$HEAD_REF:$HEAD_REF"
+
           git fetch origin "$BASE_REF:$BASE_REF"
 
           git diff "origin/$BASE_REF" > "raw_diff.txt"
