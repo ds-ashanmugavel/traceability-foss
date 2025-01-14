@@ -49,7 +49,6 @@ jobs:
            git config user.name "Update branch"
            git config user.email github-actions@github.com
            git fetch origin
-           git clean -f
             if git rev-parse --verify origin/changelog; then
               echo "Branch 'changelog' exists. Checking it out."
               git checkout changelog
