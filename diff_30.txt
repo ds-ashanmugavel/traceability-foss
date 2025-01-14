@@ -3,6 +3,9 @@ Pull Request Title: Feature ba
 Pull Request Description:
 w11e13e33e1
 
+resolves traceability-foss#
+
+
 Diff:
 diff --git a/.github/workflows/GetDiff.yml b/.github/workflows/GetDiff.yml
 index 33654dc5a..2ff366031 100644
