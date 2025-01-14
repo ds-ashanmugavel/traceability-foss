@@ -59,7 +59,7 @@ jobs:
               git push -u origin changelog
             fi
 
-            if [ -f "diff_$PULL_NUMBER" ]; then
+            if [ -f "diff_$PULL_NUMBER.txt" ]; then
               echo "Deleting existing diff file."
               rm "diff_$PULL_NUMBER.txt"
             fi
