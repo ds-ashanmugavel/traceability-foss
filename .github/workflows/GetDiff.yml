@@ -61,7 +61,6 @@ jobs:
             git checkout -b changelog
           fi
 
-          cp $DIFF_FILE .
           git add $DIFF_FILE
           git commit -m "Update diff file for PR #${PULL_NUMBER}"
           git push origin changelog
