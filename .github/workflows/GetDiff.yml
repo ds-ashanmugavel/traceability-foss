@@ -19,7 +19,7 @@ jobs:
         run: |-
           PULL_NUMBER=${{ github.event.pull_request.number }}
           FILE_NAME="diff_${PULL_NUMBER}.txt"
-
+          PR_BRANCH=${{ github.head_ref }}
 
           if git ls-remote --exit-code origin changelog; then
             echo "Branch 'changelog' exists. Fetching it."
@@ -35,6 +35,9 @@ jobs:
           else
             echo "Branch 'changelog' does not exist. Skipping file deletion."
           fi
+
+          echo "Switching back to the PR branch: $PR_BRANCH"
+          git checkout $PR_BRANCH
       - name: "Get diff from pull request"
         id: get_diff
         shell: bash
@@ -71,7 +74,8 @@ jobs:
           git config user.email "github-actions@github.com"
 
           if git ls-remote --exit-code origin changelog; then
-            echo "already checkout"
+            echo "Changelog checkout"
+            git checkout changelog
           else
             git checkout -b changelog
           fi
