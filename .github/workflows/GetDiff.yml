@@ -48,8 +48,8 @@ jobs:
 
            git config user.name "Update branch"
            git config user.email github-actions@github.com
-
            git fetch origin
+           git clean -f
             if git rev-parse --verify origin/changelog; then
               echo "Branch 'changelog' exists. Checking it out."
               git checkout changelog
@@ -61,7 +61,7 @@ jobs:
 
             if [ -f "diff_$PULL_NUMBER" ]; then
               echo "Deleting existing diff file."
-              rm "diff_$PULL_NUMBER"
+              rm "diff_$PULL_NUMBER.txt"
             fi
 
             git add .
