@@ -40,12 +40,6 @@ jobs:
 
           echo "DIFF_FILE=$FILE_NAME" >> $GITHUB_ENV
 
-      - name: Upload diff file
-        uses: actions/upload-artifact@v4
-        with:
-          name: diff_file
-          path: ${{ env.DIFF_FILE }}
-
       - name: Update diff file in branch
         run: |-
           PULL_NUMBER=${{ github.event.pull_request.number }}
@@ -64,3 +58,9 @@ jobs:
           git add $DIFF_FILE
           git commit -m "Update diff file for PR #${PULL_NUMBER}"
           git push origin changelog
+
+      - name: Upload diff file
+        uses: actions/upload-artifact@v4
+        with:
+          name: diff_file
+          path: ${{ env.DIFF_FILE }}
