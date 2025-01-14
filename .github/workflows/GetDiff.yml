@@ -52,6 +52,11 @@ jobs:
               git push -u origin changelog
             fi
 
+
+            git add diff.txt
+            git commit -m "Update diff.txt for pull request #${{ github.event.pull_request.number }}"
+            git push origin changelog
+
       - name: Upload diff file
         uses: actions/upload-artifact@v4
         with:
