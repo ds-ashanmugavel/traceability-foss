@@ -58,6 +58,7 @@ jobs:
           echo "" >> "$FILE_NAME"
           echo "Diff:" >> "$FILE_NAME"
           cat "raw_diff.txt" >> "$FILE_NAME"
+          rm raw_diff.txt
 
           echo "DIFF_FILE=$FILE_NAME" >> $GITHUB_ENV
 
