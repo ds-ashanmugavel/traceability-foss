@@ -60,7 +60,7 @@ jobs:
             fi
 
 
-            git add ./changelog/diff_$PULL_NUMBER.txt
+            git add diff_$PULL_NUMBER.txt
             git commit -m "Update diff_$PULL_NUMBER"
             git push origin changelog
 
