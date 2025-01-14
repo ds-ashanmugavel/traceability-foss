@@ -40,7 +40,17 @@ jobs:
 
           echo "diff=$(cat diff.txt | tr '\n' ' ')" >> $GITHUB_ENV
 
-
+      - name: Save diff.txt in branche
+        run: |
+           git fetch origin
+            if git rev-parse --verify origin/changelog; then
+              echo "Branch 'changelog' exists. Checking it out."
+              git checkout changelog
+            else
+              echo "Branch 'changelog' does not exist. Creating it."
+              git checkout -b changelog
+              git push -u origin changelog
+            fi
 
       - name: Upload diff file
         uses: actions/upload-artifact@v4
