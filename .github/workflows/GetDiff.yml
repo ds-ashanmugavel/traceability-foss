@@ -20,6 +20,7 @@ jobs:
         env:
           PULL_REQUEST_HEAD_REF: "${{ github.event.pull_request.head.ref }}"
         run: |-
+          PULL_NUMBER="$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")"
           PR_TITLE="${{ github.event.pull_request.title }}"
           PR_BODY="${{ github.event.pull_request.body }}"
 
@@ -36,9 +37,9 @@ jobs:
           echo "$PR_BODY" >> "diff.txt"
           echo "" >> "diff.txt"
           echo "Diff:" >> "diff.txt"
-          cat "raw_diff.txt" >> "diff.txt"
+          cat "raw_diff.txt" >> "diff_$PULL_NUMBER"
 
-          echo "diff=$(cat diff.txt | tr '\n' ' ')" >> $GITHUB_ENV
+          echo "diff_$PULL_NUMBER=$(cat diff_$PULL_NUMBER | tr '\n' ' ')" >> $GITHUB_ENV
 
       - name: Save diff.txt in branche
         run: |
@@ -60,7 +61,7 @@ jobs:
 
 
             git add ./changelog/diff_$PULL_NUMBER.txt
-            git commit -m "Update diff.txt for pull request #${{ github.event.pull_request.number }}"
+            git commit -m "Update diff_$PULL_NUMBER"
             git push origin changelog
 
       - name: Upload diff file
