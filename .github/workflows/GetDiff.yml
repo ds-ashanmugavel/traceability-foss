@@ -71,7 +71,6 @@ jobs:
 
           if git ls-remote --exit-code origin changelog; then
             git fetch origin changelog:changelog
-            git checkout changelog
           else
             git checkout -b changelog
           fi
