@@ -35,7 +35,7 @@ jobs:
           else
             echo "Branch 'changelog' does not exist. Skipping file deletion."
           fi
-      - name: "Get diff of the pull request"
+      - name: "Get diff from pull request"
         id: get_diff
         shell: bash
         run: |-
