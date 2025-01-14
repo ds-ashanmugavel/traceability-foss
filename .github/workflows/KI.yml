@@ -13,6 +13,8 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v4
 
+
+
       - name: Fetch and checkout `changelog` branch
         run: |-
           if git ls-remote --exit-code origin changelog; then
@@ -21,6 +23,7 @@ jobs:
           else
             echo "Branch 'changelog' does not exist. Exiting."
             exit 1
+          fi
 
       - name: Retrieve diff file
         id: retrieve_diff
