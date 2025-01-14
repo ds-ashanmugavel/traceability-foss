@@ -30,21 +30,29 @@ jobs:
 
           git diff "origin/${{ github.event.pull_request.base.ref }}" > "raw_diff.txt"
 
+          FILE_NAME="diff_${PULL_NUMBER}.txt"
+          echo "Pull Request Title: $PR_TITLE" >> "$FILE_NAME"
+          echo "" >> "$FILE_NAME"
+          echo "Pull Request Description:" >> "$FILE_NAME"
+          echo "$PR_BODY" >> "$FILE_NAME"
+          echo "" >> "$FILE_NAME"
+          echo "Diff:" >> "$FILE_NAME"
+          cat "raw_diff.txt" >> "$FILE_NAME"
 
-          echo "Pull Request Title: $PR_TITLE" >> "diff_$PULL_NUMBER"
-          echo "" >> "diff_$PULL_NUMBER"
-          echo "Pull Request Description:" >> "diff_$PULL_NUMBER"
-          echo "$PR_BODY" >> "diff_$PULL_NUMBER"
-          echo "" >> "diff_$PULL_NUMBER"
-          echo "Diff:" >> "diff_$PULL_NUMBER"
-          cat "raw_diff.txt" >> "diff_$PULL_NUMBER"
 
-          echo "diff_$PULL_NUMBER.txt=$(cat diff_$PULL_NUMBER.txt | tr '\n' ' ')" >> $GITHUB_ENV
+          echo "DIFF_FILE=$FILE_NAME" >> $GITHUB_ENV
+
+
+      - name: Upload diff file
+        uses: actions/upload-artifact@v4
+        with:
+          name: DIFF_FILE
+          path: ${{ env.DIFF_FILE }}
 
       - name: Save diff.txt in branche
         run: |
+           FILE_NAME="diff_${PULL_NUMBER}.txt"
 
-           PULL_NUMBER="$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")"
            git clean -f
            git config user.name "Update branch"
            git config user.email github-actions@github.com
@@ -58,17 +66,12 @@ jobs:
               git push -u origin changelog
             fi
 
-            if [ -f "diff_$PULL_NUMBER.txt" ]; then
+            if [ -f "$FILE_NAME" ]; then
               echo "Deleting existing diff file."
-              rm "diff_$PULL_NUMBER.txt"
+              rm "$FILE_NAME"
             fi
 
-            git add .
-            git commit -m "Update diff_$PULL_NUMBER"
+            git add "$DIFF_FILE"
+            git commit -m "Update FILE_NAME"
             git push origin changelog
 
-      - name: Upload diff file
-        uses: actions/upload-artifact@v4
-        with:
-          name: diff_$PULL_NUMBER.txt
-          path: ./diff_$PULL_NUMBER.txt
