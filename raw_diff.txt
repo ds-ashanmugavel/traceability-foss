@@ -1,0 +1,219 @@
+diff --git a/.github/workflows/AS_Bachelor.yaml b/.github/workflows/AS_Bachelor.yaml
+deleted file mode 100644
+index 689c23571..000000000
+--- a/.github/workflows/AS_Bachelor.yaml
++++ /dev/null
+@@ -1,75 +0,0 @@
+-name: Generate Changelog
+-
+-on:
+-  pull_request:
+-    types:
+-      - opened
+-      - reopened
+-      - synchronize
+-      - closed
+-
+-
+-jobs:
+-  cache-changed-files:
+-    if: github.event.action != 'closed'  # Nur bei Pushes in den PR
+-    runs-on: ubuntu-latest
+-    name: Cache Changed Files
+-
+-    outputs:
+-      changed-files-cache: ${{ steps.save-cache.outputs.changed-files-cache }}
+-
+-    steps:
+-      - name: Checkout Repository
+-        uses: actions/checkout@v4
+-        with:
+-          fetch-depth: 0
+-
+-      - name: Get Changed Files
+-        id: changed-files
+-        uses: tj-actions/changed-files@v14.6
+-
+-      - name: Save Changed Files to Cache
+-        id: save-cache
+-        run: |
+-          echo '${{ steps.changed-files.outputs.all_changed_files }}' > changed-files-cache.json
+-          echo "changed-files-cache=$(cat changed-files-cache.json)" >> $GITHUB_ENV
+-
+-      - name: Upload Changed Files as Artifact
+-        uses: actions/upload-artifact@v3
+-        with:
+-          name: changed-files
+-          path: changed-files-cache.json
+-
+-  generate-changelog:
+-    needs: cache-changed-files
+-    if: github.event.pull_request.merged == true  # Nur wenn der PR gemerged wird
+-    runs-on: ubuntu-latest
+-
+-    steps:
+-
+-
+-      - name: Download Changed Files Artifact
+-        uses: actions/download-artifact@v3
+-        with:
+-          name: changed-files
+-
+-
+-      - name: Display Changed Files
+-        run: cat changed-files-cache.json
+-
+-      - name: Checkout Repository
+-        uses: actions/checkout@v4
+-
+-      - name: Fetch Pull Request Data
+-        id: fetch_pr
+-        run: |
+-          echo "PR_TITLE=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
+-          echo "PR_BODY=$(echo "${{ github.event.pull_request.body }}" | tr '\n' ' ')" >> $GITHUB_ENV
+-
+-      - name: Output Fetched Data
+-        run: |
+-          echo "Pull Request Title: $PR_TITLE"
+-          echo "Pull Request Body: $PR_BODY"
+-          echo "Pull Request Author: $PR_AUTHOR"
+-
+-
+diff --git a/.github/workflows/GetDiff.yml b/.github/workflows/GetDiff.yml
+index 30f923d4d..6bfb3b46d 100644
+--- a/.github/workflows/GetDiff.yml
++++ b/.github/workflows/GetDiff.yml
+@@ -1,23 +1,26 @@
+-name: "Get Diff"
++name: "Get Diffs"
+ 
+ on:
+   pull_request:
+-    types: [opened, edited, synchronize, closed]
++    types: [opened, edited, synchronize]
+ 
+ jobs:
+   review:
+     runs-on: ubuntu-latest
+     permissions:
+-      contents: read
++      contents: write
+       pull-requests: write
+     steps:
+-      - uses: actions/checkout@v3
++      - uses: actions/checkout@v4
++        with:
++          token: ${{ secrets.GITHUB_TOKEN }}
+       - name: "Get diff of the pull request"
+         id: get_diff
+         shell: bash
+         env:
+           PULL_REQUEST_HEAD_REF: "${{ github.event.pull_request.head.ref }}"
+         run: |-
++          PULL_NUMBER="$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")"
+           PR_TITLE="${{ github.event.pull_request.title }}"
+           PR_BODY="${{ github.event.pull_request.body }}"
+ 
+@@ -28,27 +31,41 @@ jobs:
+           git diff "origin/${{ github.event.pull_request.base.ref }}" > "raw_diff.txt"
+ 
+ 
+-          echo "Pull Request Title: $PR_TITLE" > "diff.txt"
+-          echo "" >> "diff.txt"
+-          echo "Pull Request Description:" >> "diff.txt"
+-          echo "$PR_BODY" >> "diff.txt"
+-          echo "" >> "diff.txt"
+-          echo "Diff:" >> "diff.txt"
+-          cat "raw_diff.txt" >> "diff.txt"
++          echo "Pull Request Title: $PR_TITLE" >> "diff_$PULL_NUMBER"
++          echo "" >> "diff_$PULL_NUMBER"
++          echo "Pull Request Description:" >> "diff_$PULL_NUMBER"
++          echo "$PR_BODY" >> "diff_$PULL_NUMBER"
++          echo "" >> "diff_$PULL_NUMBER"
++          echo "Diff:" >> "diff_$PULL_NUMBER"
++          cat "raw_diff.txt" >> "diff_$PULL_NUMBER"
++
++          echo "diff_$PULL_NUMBER=$(cat diff_$PULL_NUMBER | tr '\n' ' ')" >> $GITHUB_ENV
++
++      - name: Save diff.txt in branche
++        run: |
++
++           PULL_NUMBER="$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")"
++
++           git config user.name "Update branch"
++           git config user.email github-actions@github.com
+ 
+-          echo "diff=$(cat diff.txt | tr '\n' ' ')" >> $GITHUB_ENV
++           git fetch origin
++            if git rev-parse --verify origin/changelog; then
++              echo "Branch 'changelog' exists. Checking it out."
++              git checkout changelog
++            else
++              echo "Branch 'changelog' does not exist. Creating it."
++              git checkout -b changelog
++              git push -u origin changelog
++            fi
+ 
+-      - name: "Upload diff artifact"
++
++            git add .
++            git commit -m "Update diff_$PULL_NUMBER"
++            git push origin changelog
++
++      - name: Upload diff file
+         uses: actions/upload-artifact@v4
+         with:
+           name: diff.txt
+           path: ./diff.txt
+-
+-
+-      - name: "Workflow finished"
+-        if: ${{ github.event.pull_request.merged == true }}
+-        run: |
+-          echo "Simulating OpenAI Call..."
+-          echo "Contents of diff.txt:"
+-          cat diff.txt
+-          echo "Simulated prompt would be sent here."
+diff --git a/.github/workflows/KI.yml b/.github/workflows/KI.yml
+new file mode 100644
+index 000000000..372020246
+--- /dev/null
++++ b/.github/workflows/KI.yml
+@@ -0,0 +1,37 @@
++name: "Retrieve Diff File"
++
++on:
++  pull_request:
++    types: [closed] # Beim Schließen des PRs
++
++jobs:
++  retrieve:
++    runs-on: ubuntu-latest
++    steps:
++      - name: Checkout the repository
++        uses: actions/checkout@v3
++
++      - name: Fetch and checkout `pr-diffs` branch
++        run: |-
++          git fetch origin pr-diffs:pr-diffs
++          git checkout pr-diffs
++
++      - name: Find and retrieve diff file
++        id: find_diff
++        run: |-
++          PR_ID="${{ github.event.pull_request.number }}"
++          DIFF_FILE="diffs/diff-$PR_ID.txt"
++
++          if [ -f "$DIFF_FILE" ]; then
++            echo "Diff file found: $DIFF_FILE"
++            echo "diff_file_path=$DIFF_FILE" >> $GITHUB_ENV
++          else
++            echo "No diff file found for PR ID $PR_ID"
++            exit 1
++          fi
++
++      - name: Upload diff file
++        uses: actions/upload-artifact@v4
++        with:
++          name: pull-request-diff
++          path: ${{ env.diff_file_path }}
