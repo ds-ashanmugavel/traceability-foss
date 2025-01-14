@@ -21,6 +21,10 @@ jobs:
           FILE_NAME="diff_${PULL_NUMBER}.txt"
           HEAD_REF="${{ github.event.pull_request.head.ref }}"
 
+          git config user.name "GitHub Actions Bot"
+          git config user.email "github-actions@github.com"
+
+
           if git ls-remote --exit-code origin changelog; then
             echo "Branch 'changelog' exists. Fetching it."
             git fetch origin changelog:changelog
