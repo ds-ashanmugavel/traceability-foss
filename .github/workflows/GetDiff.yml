@@ -40,7 +40,7 @@ jobs:
           cat "raw_diff.txt" >> "$FILE_NAME"
 
 
-          echo "DIFF_FILE=$FILE_NAME" >> $GITHUB_ENV
+
 
 
       - name: Upload diff file
@@ -68,10 +68,10 @@ jobs:
 
             if [ -f "$FILE_NAME" ]; then
               echo "Deleting existing diff file."
-              rm "$FILE_NAME"
+              rm $FILE_NAME
             fi
 
-            git add "$DIFF_FILE"
+            git add $DIFF_FILE
             git commit -m "Update FILE_NAME"
             git push origin changelog
 
