@@ -12,8 +12,7 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+
 
 
       - name: Fetch and checkout `changelog` branch
@@ -24,6 +23,7 @@ jobs:
           else
             echo "Branch 'changelog' does not exist. Exiting."
             exit 1
+          fi
 
       - name: Retrieve diff file
         id: retrieve_diff
