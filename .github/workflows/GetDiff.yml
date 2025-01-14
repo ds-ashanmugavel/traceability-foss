@@ -1,54 +1,86 @@
-name: "Get Diff"
+name: "Get Diffs"
 
 on:
   pull_request:
-    types: [opened, edited, synchronize, closed]
+    types: [opened, edited, synchronize]
 
 jobs:
   review:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: "Delete Diff file if it exists"
+        run: |-
+          PULL_NUMBER=${{ github.event.pull_request.number }}
+          FILE_NAME="diff_${PULL_NUMBER}.txt"
+
+
+          if git ls-remote --exit-code origin changelog; then
+            echo "Branch 'changelog' exists. Fetching it."
+            git fetch origin changelog:changelog
+            git checkout changelog
+
+            if [ -f "$FILE_NAME" ]; then
+               echo "Deleting existing diff file."
+               rm $FILE_NAME
+            else
+              echo "File does not exist: $FILE_NAME"
+            fi
+          else
+            echo "Branch 'changelog' does not exist. Skipping file deletion."
+          fi
       - name: "Get diff of the pull request"
         id: get_diff
         shell: bash
-        env:
-          PULL_REQUEST_HEAD_REF: "${{ github.event.pull_request.head.ref }}"
         run: |-
+          PULL_NUMBER=${{ github.event.pull_request.number }}
           PR_TITLE="${{ github.event.pull_request.title }}"
           PR_BODY="${{ github.event.pull_request.body }}"
+          BASE_REF="${{ github.event.pull_request.base.ref }}"
+          HEAD_REF="${{ github.event.pull_request.head.ref }}"
 
-          git fetch origin "${{ env.PULL_REQUEST_HEAD_REF }}:${{ env.PULL_REQUEST_HEAD_REF }}"
-          git checkout "${{ env.PULL_REQUEST_HEAD_REF }}"
-          git fetch origin "${{ github.event.pull_request.base.ref }}:${{ github.event.pull_request.base.ref }}"
+          git fetch origin "$HEAD_REF:$HEAD_REF"
+          git fetch origin "$BASE_REF:$BASE_REF"
 
-          git diff "origin/${{ github.event.pull_request.base.ref }}" > "raw_diff.txt"
+          git diff "origin/$BASE_REF" > "raw_diff.txt"
 
+          FILE_NAME="diff_${PULL_NUMBER}.txt"
+          echo "Pull Request Title: $PR_TITLE" > "$FILE_NAME"
+          echo "" >> "$FILE_NAME"
+          echo "Pull Request Description:" >> "$FILE_NAME"
+          echo "$PR_BODY" >> "$FILE_NAME"
+          echo "" >> "$FILE_NAME"
+          echo "Diff:" >> "$FILE_NAME"
+          cat "raw_diff.txt" >> "$FILE_NAME"
 
-          echo "Pull Request Title: $PR_TITLE" > "diff.txt"
-          echo "" >> "diff.txt"
-          echo "Pull Request Description:" >> "diff.txt"
-          echo "$PR_BODY" >> "diff.txt"
-          echo "" >> "diff.txt"
-          echo "Diff:" >> "diff.txt"
-          cat "raw_diff.txt" >> "diff.txt"
+          echo "DIFF_FILE=$FILE_NAME" >> $GITHUB_ENV
 
-          echo "diff=$(cat diff.txt | tr '\n' ' ')" >> $GITHUB_ENV
+      - name: Update diff file in branch
+        run: |-
+          PULL_NUMBER=${{ github.event.pull_request.number }}
+          DIFF_FILE="diff_${PULL_NUMBER}.txt"
 
-      - name: "Upload diff artifact"
+          git config user.name "GitHub Actions Bot"
+          git config user.email "github-actions@github.com"
+
+          if git ls-remote --exit-code origin changelog; then
+            echo "already checkout"
+          else
+            git checkout -b changelog
+          fi
+
+          git add $DIFF_FILE
+          git commit -m "Update diff file for PR #${PULL_NUMBER}"
+          git push origin changelog
+
+      - name: Upload diff file
         uses: actions/upload-artifact@v4
         with:
-          name: diff.txt
-          path: ./diff.txt
-
-
-      - name: "Workflow finished"
-        if: ${{ github.event.pull_request.merged == true }}
-        run: |
-          echo "Simulating OpenAI Call..."
-          echo "Contents of diff.txt:"
-          cat diff.txt
-          echo "Simulated prompt would be sent here."
+          name: diff_file
+          path: ${{ env.DIFF_FILE }}
