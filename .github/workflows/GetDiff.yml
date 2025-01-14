@@ -42,6 +42,9 @@ jobs:
 
       - name: Save diff.txt in branche
         run: |
+
+           PULL_NUMBER="$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")"
+
            git config user.name "Update branch"
            git config user.email github-actions@github.com
 
@@ -56,12 +59,12 @@ jobs:
             fi
 
 
-            git add diff.txt
+            git add ./changelog/diff_$PULL_NUMBER.txt
             git commit -m "Update diff.txt for pull request #${{ github.event.pull_request.number }}"
             git push origin changelog
 
       - name: Upload diff file
         uses: actions/upload-artifact@v4
         with:
-          name: pull-request-diff
-          path: ./pull-request-diff
+          name: diff.txt
+          path: ./diff.txt
