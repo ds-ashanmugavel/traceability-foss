@@ -87,10 +87,10 @@ index 689c23571..000000000
 -
 -
 diff --git a/.github/workflows/GetDiff.yml b/.github/workflows/GetDiff.yml
-index 30f923d4d..9cb6cfcfd 100644
+index 30f923d4d..2ff366031 100644
 --- a/.github/workflows/GetDiff.yml
 +++ b/.github/workflows/GetDiff.yml
-@@ -1,54 +1,66 @@
+@@ -1,17 +1,19 @@
 -name: "Get Diff"
 +name: "Get Diffs"
  
@@ -114,63 +114,30 @@ index 30f923d4d..9cb6cfcfd 100644
        - name: "Get diff of the pull request"
          id: get_diff
          shell: bash
--        env:
--          PULL_REQUEST_HEAD_REF: "${{ github.event.pull_request.head.ref }}"
-         run: |-
-+          PULL_NUMBER=${{ github.event.pull_request.number }}
-           PR_TITLE="${{ github.event.pull_request.title }}"
-           PR_BODY="${{ github.event.pull_request.body }}"
-+          BASE_REF="${{ github.event.pull_request.base.ref }}"
-+          HEAD_REF="${{ github.event.pull_request.head.ref }}"
+@@ -38,17 +40,20 @@ jobs:
  
--          git fetch origin "${{ env.PULL_REQUEST_HEAD_REF }}:${{ env.PULL_REQUEST_HEAD_REF }}"
--          git checkout "${{ env.PULL_REQUEST_HEAD_REF }}"
--          git fetch origin "${{ github.event.pull_request.base.ref }}:${{ github.event.pull_request.base.ref }}"
-+          git fetch origin "$HEAD_REF:$HEAD_REF"
-+          git fetch origin "$BASE_REF:$BASE_REF"
- 
--          git diff "origin/${{ github.event.pull_request.base.ref }}" > "raw_diff.txt"
-+          git diff "origin/$BASE_REF" > "raw_diff.txt"
- 
-+          FILE_NAME="diff_${PULL_NUMBER}.txt"
-+          echo "Pull Request Title: $PR_TITLE" > "$FILE_NAME"
-+          echo "" >> "$FILE_NAME"
-+          echo "Pull Request Description:" >> "$FILE_NAME"
-+          echo "$PR_BODY" >> "$FILE_NAME"
-+          echo "" >> "$FILE_NAME"
-+          echo "Diff:" >> "$FILE_NAME"
-+          cat "raw_diff.txt" >> "$FILE_NAME"
- 
--          echo "Pull Request Title: $PR_TITLE" > "diff.txt"
--          echo "" >> "diff.txt"
--          echo "Pull Request Description:" >> "diff.txt"
--          echo "$PR_BODY" >> "diff.txt"
--          echo "" >> "diff.txt"
--          echo "Diff:" >> "diff.txt"
--          cat "raw_diff.txt" >> "diff.txt"
-+          echo "DIFF_FILE=$FILE_NAME" >> $GITHUB_ENV
- 
--          echo "diff=$(cat diff.txt | tr '\n' ' ')" >> $GITHUB_ENV
-+      - name: Update diff file in branch
-+        run: |-
-+          PULL_NUMBER=${{ github.event.pull_request.number }}
-+          DIFF_FILE="diff_${PULL_NUMBER}.txt"
+           echo "diff=$(cat diff.txt | tr '\n' ' ')" >> $GITHUB_ENV
  
 -      - name: "Upload diff artifact"
--        uses: actions/upload-artifact@v4
--        with:
++      - name: Save diff.txt in branche
++        run: |
++           git fetch origin
++            if git rev-parse --verify origin/changelog; then
++              echo "Branch 'changelog' exists. Checking it out."
++              git checkout changelog
++            else
++              echo "Branch 'changelog' does not exist. Creating it."
++              git checkout -b changelog
++              git push -u origin changelog
++            fi
++
++      - name: Upload diff file
+         uses: actions/upload-artifact@v4
+         with:
 -          name: diff.txt
 -          path: ./diff.txt
-+          git config user.name "GitHub Actions Bot"
-+          git config user.email "github-actions@github.com"
- 
-+          if git ls-remote --exit-code origin changelog; then
-+            git fetch origin changelog:changelog
-+            git checkout changelog
-+          else
-+            git checkout -b changelog
-+          fi
- 
+-
+-
 -      - name: "Workflow finished"
 -        if: ${{ github.event.pull_request.merged == true }}
 -        run: |
@@ -178,15 +145,8 @@ index 30f923d4d..9cb6cfcfd 100644
 -          echo "Contents of diff.txt:"
 -          cat diff.txt
 -          echo "Simulated prompt would be sent here."
-+          git add $DIFF_FILE
-+          git commit -m "Update diff file for PR #${PULL_NUMBER}"
-+          git push origin changelog
-+
-+      - name: Upload diff file
-+        uses: actions/upload-artifact@v4
-+        with:
-+          name: diff_file
-+          path: ${{ env.DIFF_FILE }}
++          name: pull-request-diff
++          path: ./pull-request-diff
 diff --git a/.github/workflows/KI.yml b/.github/workflows/KI.yml
 new file mode 100644
 index 000000000..372020246
