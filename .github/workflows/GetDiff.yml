@@ -31,12 +31,12 @@ jobs:
           git diff "origin/${{ github.event.pull_request.base.ref }}" > "raw_diff.txt"
 
 
-          echo "Pull Request Title: $PR_TITLE" > "diff.txt"
-          echo "" >> "diff.txt"
-          echo "Pull Request Description:" >> "diff.txt"
-          echo "$PR_BODY" >> "diff.txt"
-          echo "" >> "diff.txt"
-          echo "Diff:" >> "diff.txt"
+          echo "Pull Request Title: $PR_TITLE" >> "diff_$PULL_NUMBER"
+          echo "" >> "diff_$PULL_NUMBER"
+          echo "Pull Request Description:" >> "diff_$PULL_NUMBER"
+          echo "$PR_BODY" >> "diff_$PULL_NUMBER"
+          echo "" >> "diff_$PULL_NUMBER"
+          echo "Diff:" >> "diff_$PULL_NUMBER"
           cat "raw_diff.txt" >> "diff_$PULL_NUMBER"
 
           echo "diff_$PULL_NUMBER=$(cat diff_$PULL_NUMBER | tr '\n' ' ')" >> $GITHUB_ENV
@@ -60,7 +60,7 @@ jobs:
             fi
 
 
-            git add diff_$PULL_NUMBER.txt
+            git add .
             git commit -m "Update diff_$PULL_NUMBER"
             git push origin changelog
 
