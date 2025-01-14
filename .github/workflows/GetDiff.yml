@@ -77,8 +77,12 @@ jobs:
           fi
 
           git add $DIFF_FILE
-          git commit -m "Update diff file for PR #${PULL_NUMBER}"
-          git push origin changelog
+          if git diff-index --quiet HEAD; then
+            echo "No changes to commit."
+          else
+            git commit -m "Update diff file for PR #${PULL_NUMBER}"
+            git push origin changelog
+          fi
 
       - name: Upload diff file
         uses: actions/upload-artifact@v4
