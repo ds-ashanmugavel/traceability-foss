@@ -39,13 +39,13 @@ jobs:
           echo "Diff:" >> "diff_$PULL_NUMBER"
           cat "raw_diff.txt" >> "diff_$PULL_NUMBER"
 
-          echo "diff_$PULL_NUMBER=$(cat diff_$PULL_NUMBER | tr '\n' ' ')" >> $GITHUB_ENV
+          echo "diff_$PULL_NUMBER.txt=$(cat diff_$PULL_NUMBER.txt | tr '\n' ' ')" >> $GITHUB_ENV
 
       - name: Save diff.txt in branche
         run: |
 
            PULL_NUMBER="$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")"
-
+           git clean -f
            git config user.name "Update branch"
            git config user.email github-actions@github.com
            git fetch origin
