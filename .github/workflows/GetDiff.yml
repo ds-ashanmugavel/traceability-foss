@@ -19,7 +19,7 @@ jobs:
         run: |-
           PULL_NUMBER=${{ github.event.pull_request.number }}
           FILE_NAME="diff_${PULL_NUMBER}.txt"
-          PR_BRANCH=${{ github.head_ref }}
+          HEAD_REF="${{ github.event.pull_request.head.ref }}"
 
           if git ls-remote --exit-code origin changelog; then
             echo "Branch 'changelog' exists. Fetching it."
@@ -37,7 +37,8 @@ jobs:
           fi
 
           echo "Switching back to the PR branch: $PR_BRANCH"
-          git checkout $PR_BRANCH
+          git fetch origin "$HEAD_REF:$HEAD_REF"
+          git checkout $HEAD_REF
       - name: "Get diff from pull request"
         id: get_diff
         shell: bash
