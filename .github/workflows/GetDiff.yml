@@ -29,10 +29,8 @@ jobs:
             if [ -f "$FILE_NAME" ]; then
                echo "Deleting existing diff file."
                rm $FILE_NAME
-               git fetch origin "$HEAD_REF:$HEAD_REF"
             else
               echo "File does not exist: $FILE_NAME"
-              git fetch origin "$HEAD_REF:$HEAD_REF"
             fi
           else
             echo "Branch 'changelog' does not exist. Skipping file deletion."
@@ -72,8 +70,7 @@ jobs:
           git config user.email "github-actions@github.com"
 
           if git ls-remote --exit-code origin changelog; then
-            git fetch origin changelog:changelog
-            git checkout changelog
+            echo "already checkout"
           else
             git checkout -b changelog
           fi
