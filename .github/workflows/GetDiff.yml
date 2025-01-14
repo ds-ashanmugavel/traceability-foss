@@ -29,8 +29,11 @@ jobs:
             if [ -f "$FILE_NAME" ]; then
                echo "Deleting existing diff file."
                rm $FILE_NAME
+                git add "$FILE_NAME"
+                git commit -m "Removed existing diff file: $FILE_NAME"
+                git push origin changelog
             else
-              echo "File does not exist: $FILE_NAME"
+                echo "File does not exist: $FILE_NAME"
             fi
           else
             echo "Branch 'changelog' does not exist. Skipping file deletion."
