@@ -40,7 +40,7 @@ jobs:
             echo "$PR_BODY" >> "Input.txt"
             echo "" >> "Input.txt"
             echo "Diff:" >> "Input.txt"
-            cat "raw_diff.txt" >> "Input.txt""
+            cat "raw_diff.txt" >> "Input.txt"
             rm raw_diff.txt
 
             echo "INPUT_FILE=$Input.txt" >> $GITHUB_ENV
