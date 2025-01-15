@@ -43,7 +43,7 @@ jobs:
             cat "raw_diff.txt" >> "Input.txt"
             rm raw_diff.txt
 
-            echo "INPUT_FILE=$Input.txt" >> $GITHUB_ENV
+            echo "INPUT_FILE=Input.txt" >> $GITHUB_ENV
 
 
 
