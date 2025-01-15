@@ -75,3 +75,7 @@ jobs:
 
 
 
+      - name: Update Changelog
+        run: |
+
+          python ./.github/changelog/Changelog.py "${{ env.response }}" "./CHANGELOG.md"

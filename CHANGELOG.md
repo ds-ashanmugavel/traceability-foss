@@ -10,6 +10,10 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 ### Changed
 - #XXX updated variables in github actions to be more generic
 
+### Added
+
+### Removed
+
 ## [13.0.2 - 16.08.2024]
 
 ### Added
