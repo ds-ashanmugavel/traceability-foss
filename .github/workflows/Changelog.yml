@@ -18,32 +18,40 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: "Get OpenAI input"
+      - name: "Get OpenAI Input File"
         id: get_diff
         shell: bash
         run: |-
-          PR_TITLE="${{ github.event.pull_request.title }}"
-          PR_BODY="${{ github.event.pull_request.body }}"
-          BASE_REF="${{ github.event.pull_request.base.ref }}"
-          HEAD_REF="${{ github.event.pull_request.head.ref }}"
+
+            PR_TITLE="${{ github.event.pull_request.title }}"
+            PR_BODY="${{ github.event.pull_request.body }}"
+            BASE_REF="${{ github.event.pull_request.base.ref }}"
+            HEAD_REF="${{ github.event.pull_request.head.ref }}"
+
+            git fetch origin "$HEAD_REF:$HEAD_REF"
+            git fetch origin "$BASE_REF:$BASE_REF"
+
+            git diff "origin/$BASE_REF" > "raw_diff.txt"
 
 
-          git fetch origin "$HEAD_REF:$HEAD_REF"
-          git checkout $HEAD_REF
-          git fetch origin "$BASE_REF:$BASE_REF"
-          git diff "origin/$BASE_REF" > "raw_diff.txt"
+            echo "Pull Request Title: $PR_TITLE" > "Input.txt"
+            echo "" >> "Input.txt"
+            echo "Pull Request Description:" >> "Input.txt"
+            echo "$PR_BODY" >> "Input.txt"
+            echo "" >> "Input.txt"
+            echo "Diff:" >> "Input.txt"
+            cat "raw_diff.txt" >> "Input.txt""
+            rm raw_diff.txt
 
-          # Read the diff content into a variable
-          RAW_DIFF=$(cat raw_diff.txt)
-
-          CHANGELOG_INPUT+="Changelog Input:\n\n"
-          CHANGELOG_INPUT+="Pull Request Title: $PR_TITLE\n\n"
-          CHANGELOG_INPUT+="Pull Request Description:\n$PR_BODY\n\n"
-          CHANGELOG_INPUT+="Diff:\n$RAW_DIFF\n"
-
-          echo "INPUT_TEXT=$CHANGELOG_INPUT" >> $GITHUB_ENV
+            echo "INPUT_FILE=$Input.txt" >> $GITHUB_ENV
 
 
-      - name: Log Changelog Input
-        run: |
-          echo "Changelog Input: $INPUT_TEXT"
+
+      - name: Upload diff file
+        uses: actions/upload-artifact@v4
+        with:
+          name: "INPUT_FILE"
+          path: ${{ env.INPUT_FILE }}
+
+
+
