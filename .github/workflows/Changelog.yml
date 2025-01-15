@@ -80,5 +80,5 @@ jobs:
 
           python ./.github/changelog/Changelog.py "${{ env.response }}" "./CHANGELOG.md"
           git add CHANGELOG.md
-                   git commit -m "Update changelog"
-                   git push origin "${{ github.event.pull_request.head.ref }}"
+          git commit -m "Update changelog"
+          git push origin "${{ github.event.pull_request.head.ref }}"
