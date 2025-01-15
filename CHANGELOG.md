@@ -12,6 +12,7 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 
 ### Added
 - Added: XXXX Implemented OpenAI changelog generator and updated related workflows.-
+- Added: XXXX Implemented OpenAI changelog generator and updated related workflows.-
 
 ### Removed
 
