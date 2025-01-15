@@ -44,3 +44,20 @@ jobs:
         with:
           name: "diff_${{ github.event.pull_request.number }}"
           path: ${{ env.DIFF_FILE }}
+
+      - name: Send Diff File to OpenAI
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |-
+          curl https://api.openai.com/v1/completions \
+            -H "Authorization: Bearer $OPENAI_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d @- <<EOF
+          {
+            "model": "text-davinci-003",
+            "prompt": "Analyze the following code diff and summarize the changes:\n\n$(cat ${{ env.DIFF_FILE }})",
+            "max_tokens": 500
+          }
+
+
+
