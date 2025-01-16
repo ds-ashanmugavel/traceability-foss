@@ -99,8 +99,8 @@ jobs:
           git push origin "${{ github.event.pull_request.head.ref }}"
 
       - name: Add PR comment
-        if: always()
         uses: mshick/add-pr-comment@v2
+        if: success()
         with:
           message: |
             🎉 Changelog Updated!
