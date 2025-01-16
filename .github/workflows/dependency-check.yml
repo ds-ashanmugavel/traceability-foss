@@ -54,8 +54,8 @@ jobs:
         with:
           project: 'tx-backend'
           path: 'tx-backend'
-          format: 'JSON'
-          out: 'tx-backend/target/depcheck-report.json'
+          format: 'html'
+          out: 'tx-backend/target/depcheck-report.html'
           args: >
             --failOnCVSS ${{ env.FAIL_BUILD_ON_CVSS }}
             --suppression ${{ env.SUPPRESSIONS_FILE }}
@@ -82,7 +82,7 @@ jobs:
         uses: actions/upload-artifact@master
         with:
           name: Depcheck report tx-backend
-          path: tx-backend/target/depcheck-report.json
+          path: tx-backend/target/depcheck-report.html
 
       - name: Upload results for tx-models
         if: always()
