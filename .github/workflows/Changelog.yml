@@ -85,7 +85,7 @@ jobs:
 
           # Save the response for later steps
           echo "response=$CLEAN_RESPONSE" >> $GITHUB_ENV
-
+          sleep 60
 
       - name: Use OpenAI Response
         if: always()
