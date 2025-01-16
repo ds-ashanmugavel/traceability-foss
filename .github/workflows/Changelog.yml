@@ -88,16 +88,21 @@ jobs:
 
 
       - name: Use OpenAI Response
+        if: always()
         run: |
           echo "Response from OpenAI: ${{ env.response }}"
+
       - name: Update Changelog
+        if: always()
         run: |
+          rm ${{ env.INPUT_FILE }}
           python ./.github/changelog/Changelog.py "${{ env.response }}" "./CHANGELOG.md"
           git add CHANGELOG.md
           git commit -m "Update changelog"
           git push origin "${{ github.event.pull_request.head.ref }}"
 
       - name: Add PR comment
+        if: always()
         uses: mshick/add-pr-comment@v2
         with:
           message: |
