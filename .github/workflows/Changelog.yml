@@ -23,17 +23,10 @@ jobs:
 
             if echo "$COMMENTS" | grep -q "🎉 Changelog Updated!"; then
               echo "Changelog comment already exists. Skipping workflow."
-              echo "::set-output name=skip::true"
+              exit 0
             else
               echo "No existing changelog comment found. Continuing workflow."
-              echo "::set-output name=skip::false"
             fi
-
-          - name: Skip if comment exists
-            if: steps.check-comment.outputs.skip == 'true'
-            run: |
-              echo "Skipping workflow as the changelog comment already exists."
-              exit 0
 
       - name: Configure Git user
         run: |
