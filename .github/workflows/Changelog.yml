@@ -81,7 +81,7 @@ jobs:
           RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "${{ secrets.OPENAPIKEY }}" "$INPUT_FILE" "$PROMPT")
 
           # Escape any problematic characters in the response
-          CLEAN_RESPONSE=$(echo "$RESPONSE" | sed 's/[]|&;<>()$`\\!]/\\&/g')
+          CLEAN_RESPONSE=$(echo "$RESPONSE" | sed 's/"//g')
 
           # Save the response for later steps
           echo "response=$CLEAN_RESPONSE" >> $GITHUB_ENV
