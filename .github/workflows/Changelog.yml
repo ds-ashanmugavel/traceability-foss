@@ -13,6 +13,28 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
+
+      - name: Check for existing PR comment
+        id: check-comment
+        run: |
+            COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                          -H "Accept: application/vnd.github.v3+json" \
+                          "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments")
+
+            if echo "$COMMENTS" | grep -q "🎉 Changelog Updated!"; then
+              echo "Changelog comment already exists. Skipping workflow."
+              echo "::set-output name=skip::true"
+            else
+              echo "No existing changelog comment found. Continuing workflow."
+              echo "::set-output name=skip::false"
+            fi
+
+          - name: Skip if comment exists
+            if: steps.check-comment.outputs.skip == 'true'
+            run: |
+              echo "Skipping workflow as the changelog comment already exists."
+              exit 0
+
       - name: Configure Git user
         run: |
           git config --global user.name "github-actions[bot]"
@@ -81,3 +103,10 @@ jobs:
           git commit -m "Update changelog"
           git push origin "${{ github.event.pull_request.head.ref }}"
 
+      - name: Add PR comment
+        uses: mshick/add-pr-comment@v2
+        with:
+          message: |
+            🎉 Changelog Updated!
+            The changelog has been successfully updated with the latest changes from this pull request. 🚀
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
