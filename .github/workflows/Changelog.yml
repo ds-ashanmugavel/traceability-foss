@@ -13,27 +13,12 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check for existing changelog comment
-        id: check_comment
-        run: |
-          COMMENTS_URL="${{ github.event.pull_request._links.comments.href }}"
-          RESPONSE=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "$COMMENTS_URL")
-          echo "$RESPONSE" | grep -q "Changelog Action: Added Changelog" && echo "FOUND=true" || echo "FOUND=false"
-          echo "found=$FOUND" >> $GITHUB_ENV
-
-      - name: Skip if changelog already added
-        if: env.found == 'true'
-        run: |
-          echo "Changelog already added. Skipping action."
-
       - name: Configure Git user
-        if: env.found == 'false'
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: "Get OpenAI Input File"
-        if: env.found == 'false'
         id: get_diff
         shell: bash
         run: |-
@@ -61,21 +46,18 @@ jobs:
             echo "INPUT_FILE=Input.txt" >> $GITHUB_ENV
 
       - name: Upload diff file
-        if: env.found == 'false'
         uses: actions/upload-artifact@v4
         with:
           name: "INPUT_FILE"
           path: ${{ env.INPUT_FILE }}
 
       - name: Set up Python
-        if: env.found == 'false'
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
 
       - name: Send Request to OpenAI
-        if: env.found == 'false'
         run: |
           python -m pip install openai
           python -m pip install requests
@@ -88,12 +70,10 @@ jobs:
           echo "::set-output name=openai_response::$RESPONSE"
 
       - name: Use OpenAI Response
-        if: env.found == 'false'
         run: |
           echo "Response from OpenAI: ${{ env.response }}"
 
       - name: Update Changelog
-        if: env.found == 'false'
         run: |
 
           python ./.github/changelog/Changelog.py "${{ env.response }}" "./CHANGELOG.md"
@@ -101,12 +81,3 @@ jobs:
           git commit -m "Update changelog"
           git push origin "${{ github.event.pull_request.head.ref }}"
 
-      - name: Add Changelog to PR Description
-        if: env.found == 'false'
-        run: |
-            NEW_BODY="${{ github.event.pull_request.body }}\n\nChangelog Action: Added Changelog\n\nChangelog:\n${{ env.response }}"
-            PR_URL="${{ github.event.pull_request.url }}"
-            curl -X PATCH -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-                 -H "Content-Type: application/json" \
-                 -d "{\"body\": \"$NEW_BODY\"}" \
-                 "$PR_URL"
