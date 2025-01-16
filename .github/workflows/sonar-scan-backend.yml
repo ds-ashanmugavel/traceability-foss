@@ -17,14 +17,8 @@
 
 name: "[BE][SECURITY] Sonar"
 on:
-  workflow_dispatch:
-  push:
-    paths:
-      - 'tx-backend/**'
-    branches:
-      - main
-  schedule:
-    - cron: "0 0 * * *"
+  pull_request:
+    types: [opened, edited, synchronize]
 
 env:
   JAVA_VERSION: 17
