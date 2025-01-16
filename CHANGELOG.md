@@ -8,12 +8,10 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 _**For better traceability add the corresponding GitHub issue number in each changelog entry, please.**_
 ## [UNRELEASED - DD.MM.YYYY]
 ### Changed
-- Changed: XXXX Introduced Changelog Generator workflow and OpenAI integration for changelog updates.
 - #XXX updated variables in github actions to be more generic
 
 ### Added
-- Added: XXXX Introduced Changelog Generator workflow and OpenAI integration for changelog updates.
-- Added: XXXX Introduced Changelog Generator workflow and OpenAI integration for changelog updates.-
+
 
 ### Removed
 
