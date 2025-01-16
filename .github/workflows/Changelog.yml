@@ -85,6 +85,7 @@ jobs:
 
           # Save the response for later steps
           echo "response=$RESPONSE" >> $GITHUB_ENV
+          rm Input.txt
 
       - name: Use OpenAI Response
         run: |
