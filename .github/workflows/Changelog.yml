@@ -84,7 +84,7 @@ jobs:
           CLEAN_RESPONSE=$(echo "$RESPONSE" | sed 's/[]|&;<>()$`\\!]/\\&/g')
 
           # Save the response for later steps
-          echo "response=$RESPONSE" >> $GITHUB_ENV
+          echo "response=$CLEAN_RESPONSE" >> $GITHUB_ENV
 
 
       - name: Use OpenAI Response
