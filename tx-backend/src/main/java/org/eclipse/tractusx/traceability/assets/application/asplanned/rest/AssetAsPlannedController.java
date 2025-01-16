@@ -124,6 +124,7 @@ public class AssetAsPlannedController {
     public void sync(@Valid @RequestBody SyncAssetsRequest syncAssetsRequest) {
         assetService.synchronizeAssetsAsync(syncAssetsRequest.globalAssetIds());
     }
+
     @Operation(operationId = "AssetsAsPlanned",
             summary = "Get assets by pagination",
             tags = {"AssetsAsPlanned"},
