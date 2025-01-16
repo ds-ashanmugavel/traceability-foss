@@ -11,10 +11,6 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 - #XXX updated variables in github actions to be more generic
 
 ### Added
-- Added: #XXXX Introduced Changelog Generator workflow with OpenAI integration for updates.
-- Added: #XXXX Introduced Changelog Generator workflow with OpenAI integration for changelog updates.-
-- Added: #XXXX Introduced Changelog Generator workflow and OpenAI integration for changelog updates.
-- Added: XXXX Introduced Changelog Generator workflow and OpenAI integration for changelog updates.
 
 ### Removed
 
