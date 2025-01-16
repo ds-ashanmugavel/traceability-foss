@@ -8,6 +8,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 _**For better traceability add the corresponding GitHub issue number in each changelog entry, please.**_
 ## [UNRELEASED - DD.MM.YYYY]
 ### Changed
+- XXXX Added Github Action to fetch Pull Request Data.
 - #XXX updated variables in github actions to be more generic
 
 ### Added
