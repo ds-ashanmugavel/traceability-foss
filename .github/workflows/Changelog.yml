@@ -85,7 +85,7 @@ jobs:
 
           # Save the response for later steps
           echo "response=$RESPONSE" >> $GITHUB_ENV
-          rm Input.txt
+
 
       - name: Use OpenAI Response
         run: |
@@ -93,7 +93,7 @@ jobs:
 
       - name: Update Changelog
         run: |
-
+          rm Input.txt
           python ./.github/changelog/Changelog.py "${{ env.response }}" "./CHANGELOG.md"
           git add CHANGELOG.md
           git commit -m "Update changelog"
