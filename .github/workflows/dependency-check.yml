@@ -54,7 +54,7 @@ jobs:
         with:
           project: 'tx-backend'
           path: 'tx-backend'
-          format: 'html'
+          format: 'HTML'
           out: 'tx-backend/target/depcheck-report.html'
           args: >
             --failOnCVSS ${{ env.FAIL_BUILD_ON_CVSS }}
