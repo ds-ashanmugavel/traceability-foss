@@ -90,9 +90,9 @@ jobs:
       - name: Use OpenAI Response
         run: |
           echo "Response from OpenAI: ${{ env.response }}"
-          rm ${{ env.INPUT_FILE }}
       - name: Update Changelog
         run: |
+          rm ${{ env.INPUT_FILE }}
           python ./.github/changelog/Changelog.py "${{ env.response }}" "./CHANGELOG.md"
           git add CHANGELOG.md
           git commit -m "Update changelog"
