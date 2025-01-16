@@ -77,7 +77,7 @@ jobs:
           python -m pip install openai
           python -m pip install requests
           INPUT_FILE="${{ env.INPUT_FILE }}"
-          PROMPT="You are tasked with creating a concise changelog entry based on the provided input. The input contains Git diffs, Pull Request titles, and descriptions, where PR titles include issue numbers in the format #XXX. Create a single well-structured changelog line as a string with a total of no more than 15 words. Use the following format Category: #XXX Brief description.- Replace 'Category' with 'Added', 'Changed', or 'Removed' based on the nature of the change.- Extract the issue number from the PR title (format: #XXX) If there is no Number in the PR title then use XXXX.- Summarize the change in as few words as possible to keep the total under 15 words."
+          PROMPT="You are tasked with creating a concise changelog entry based on the provided input. The input contains Git diffs, Pull Request titles, and descriptions, where PR titles include issue numbers in the format #XXXX. Create a single well-structured changelog line as a string with a total of no more than 15 words. Use the following format Category: #XXX Brief description.- Replace 'Category' with 'Added', 'Changed', or 'Removed' based on the nature of the change.- Extract the issue number from the PR title (format: #XXXX) If there is no Number in the PR title then use #XXXX.- Summarize the change in as few words as possible to keep the total under 15 words."
           RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "${{ secrets.OPENAPIKEY }}" "$INPUT_FILE" "$PROMPT")
 
           # Escape any problematic characters in the response
