@@ -14,7 +14,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
 
-      - name: Check for existing PR comment
+      - name: "Check for existing PR comment"
         id: check-comment
         run: |
             COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
