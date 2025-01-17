@@ -12,6 +12,7 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 
 ### Added
 - #XXXX Introduced a GitHub Action to fetch Pull Request data.
+- #XXXX Introduced a GitHub Action to fetch Pull Request data.
 
 
 
