@@ -5,28 +5,35 @@ on:
     types: [opened, edited, synchronize]
 
 jobs:
-  review:
+  Check:
     runs-on: ubuntu-latest
+    outputs:
+      existing_comment: ${{ steps.check.outputs.exists }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-
-      - name: "Check for existing PR comment"
-        id: check-comment
-        run: |
+        - name: "Checking for Comment"
+          id: check
+          run: |
             COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                           -H "Accept: application/vnd.github.v3+json" \
                           "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments")
 
             if echo "$COMMENTS" | grep -q "🎉 Changelog Updated!"; then
               echo "Changelog comment already exists. Skipping workflow."
-              exit 0
+              echo "exists=true" >> $GITHUB_OUTPUT
             else
               echo "No existing changelog comment found. Continuing workflow."
+              echo "exists=false" >> $GITHUB_OUTPUT
             fi
+
+  review:
+    needs: Check
+    runs-on: ubuntu-latest
+    if: needs.erster-job.outputs.existing_comment == 'false'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Configure Git user
         run: |
