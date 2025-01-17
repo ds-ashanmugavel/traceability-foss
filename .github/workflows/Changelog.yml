@@ -77,7 +77,7 @@ jobs:
           python -m pip install openai
           python -m pip install requests
           INPUT_FILE="${{ env.INPUT_FILE }}"
-          PROMPT="You are tasked with creating a concise changelog entry based on the provided input. The input contains Git diffs, Pull Request titles, and descriptions, where PR titles include issue numbers in the format #XXXX. Create a single well-structured changelog line as a string with a total of no more than 15 words. Use the following format Category: #XXX Brief description.- Replace 'Category' with 'Added', 'Changed', or 'Removed' based on the nature of the change.- Extract the issue number from the PR title (format: #XXXX) If there is no Number in the PR title then use #XXXX.- Summarize the change in as few words as possible to keep the total under 15 words.Use only # as a special character; otherwise, use only letters and numbers.Ensure the response is a single string without line breaks, backticks, or extra formatting."
+          PROMPT="You are tasked with creating a concise and strictly formatted changelog entry based on the input file, which contains Git diffs, Pull Request (PR) titles, and descriptions; the changelog entry must adhere to the format 'Category: #XXXX Brief description,' where 'Category' is replaced with 'Added,' 'Changed,' or 'Removed' based on the nature of the change inferred primarily from the Git diff while using the PR title and description only for supplementary context, and the issue number is extracted from the PR title (format: #XXXX) or replaced with #XXXX as a placeholder if absent; the entire entry must not exceed 15 words, with a strict focus on the Git diff content to ensure precision, structure, and alignment with these rules."
           RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "${{ secrets.OPENAPIKEY }}" "$INPUT_FILE" "$PROMPT")
 
           # Save the response for later steps
@@ -104,4 +104,4 @@ jobs:
         with:
           message: |
             ## 🎉 Changelog Updated!
-            The changelog has been successfully updated with the latest changes from this pull request
+            The changelog has been successfully updated.
