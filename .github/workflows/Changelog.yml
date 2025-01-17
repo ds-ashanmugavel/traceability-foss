@@ -10,7 +10,7 @@ jobs:
     outputs:
       existing_comment: ${{ steps.check.outputs.exists }}
     steps:
-        - name: "Checking for Comment"
+        - name: "Check"
           id: check
           run: |
             COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
@@ -28,7 +28,7 @@ jobs:
   review:
     needs: Check
     runs-on: ubuntu-latest
-    if: needs.erster-job.outputs.existing_comment == 'false'
+    if: needs.Check.outputs.exists == 'false'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
