@@ -8,7 +8,7 @@ jobs:
   Check:
     runs-on: ubuntu-latest
     outputs:
-      existing_comment: ${{ steps.check.outputs.exists }}
+      exists: ${{ steps.check.outputs.exists }}
     steps:
         - name: Checkout repository
           uses: actions/checkout@v4
