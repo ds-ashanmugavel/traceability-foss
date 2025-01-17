@@ -103,4 +103,5 @@ jobs:
         if: success()
         with:
           message: |
-            ## 🎉 Changelog Updated! The changelog has been successfully updated with the latest changes from this pull request
+            ## 🎉 Changelog Updated!
+            The changelog has been successfully updated with the latest changes from this pull request
