@@ -11,6 +11,7 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 - #XXX updated variables in github actions to be more generic
 
 ### Added
+- #traceability Added GitHub Action to fetch Pull Request data.
 
 
 
