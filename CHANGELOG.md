@@ -23,6 +23,7 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 
 
 ### Removed
+- #1789 Removed Get assets by pagination endpoint from AssetAsPlannedController.
 
 ## [13.0.2 - 16.08.2024]
 
