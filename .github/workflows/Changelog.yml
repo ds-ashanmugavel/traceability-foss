@@ -5,8 +5,35 @@ on:
     types: [opened, edited, synchronize]
 
 jobs:
-  review:
+  Check:
     runs-on: ubuntu-latest
+    outputs:
+      exists: ${{ steps.check.outputs.exists }}
+    steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+          with:
+            token: ${{ secrets.GITHUB_TOKEN }}
+
+        - name: "Check"
+          id: check
+          run: |
+            COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                          -H "Accept: application/vnd.github.v3+json" \
+                          "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments")
+             echo "$COMMENTS"
+            if echo "$COMMENTS" | grep -q "🎉 Changelog Updated!"; then
+              echo "Changelog comment already exists. Skipping workflow."
+              echo "exists=true" >> $GITHUB_OUTPUT
+            else
+              echo "No existing changelog comment found. Continuing workflow."
+              echo "exists=false" >> $GITHUB_OUTPUT
+            fi
+
+  review:
+    needs: Check
+    runs-on: ubuntu-latest
+    if: needs.Check.outputs.exists == 'false'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -59,26 +86,35 @@ jobs:
 
       - name: Send Request to OpenAI
         run: |
-
+          python -m pip install openai
           python -m pip install requests
           INPUT_FILE="${{ env.INPUT_FILE }}"
-          PROMPT="You are tasked with creating a concise changelog entry based on the provided input. The input contains Git diffs, Pull Request titles, and descriptions, where PR titles include issue numbers in the format #XXX. Create a single well-structured changelog line as a string with a total of no more than 15 words. Use the following format Category: #XXX Brief description.- Replace 'Category' with 'Added', 'Changed', or 'Removed' based on the nature of the change.- Extract the issue number from the PR title (format: #XXX) If there is no Number in the PR title then use XXXX.- Summarize the change in as few words as possible to keep the total under 15 words."
-          RESPONSE=$(python ./.github/OpenAi/OpenAi_Text.py "${{ secrets.OPENAPIKEY }}" "$INPUT_FILE" "$PROMPT")
+          PROMPT="You are tasked with creating a concise and strictly formatted changelog entry based on the input file, which contains Git diffs, Pull Request (PR) titles, and descriptions; the changelog entry must fit to the format ('Category: #XXXX Brief description.') where 'Category' is replaced with 'Added,' 'Changed,' or 'Removed' based on the nature of the change inferred primarily from the Git diff while using the PR title and description only for supplementary context, and the issue number is extracted from the PR title (format: #XXXX) or replaced with #XXXX as a placeholder if absent; the entire entry must not exceed 15 words, with a strict focus on the Git diff content to ensure precision, structure, and alignment with these rules. Use only # as a special character, otherwise use only letters and numbers. Ensure the response is a single string without line breaks, backticks, apostrophe or extra formatting."
+          RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "${{ secrets.OPENAPIKEY }}" "$INPUT_FILE" "$PROMPT")
 
           # Save the response for later steps
           echo "response=$RESPONSE" >> $GITHUB_ENV
-          echo "::set-output name=openai_response::$RESPONSE"
+          sleep 60
 
       - name: Use OpenAI Response
+        if: always()
         run: |
           echo "Response from OpenAI: ${{ env.response }}"
 
-
-
       - name: Update Changelog
+        if: always()
         run: |
-
+          rm ${{ env.INPUT_FILE }}
           python ./.github/changelog/Changelog.py "${{ env.response }}" "./CHANGELOG.md"
           git add CHANGELOG.md
           git commit -m "Update changelog"
           git push origin "${{ github.event.pull_request.head.ref }}"
+
+      - name: Add PR comment
+        uses: mshick/add-pr-comment@v2
+        if: success()
+        with:
+          message: |
+            ## 🎉 Changelog Updated!
+            The changelog has been successfully updated.
+          allow-repeats: true
