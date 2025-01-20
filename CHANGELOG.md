@@ -12,7 +12,6 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 - #XXX updated variables in github actions to be more generic
 
 ### Added
-- #5432 Integrate dependency-check action and upload results for tx-backend.
 - #XXXX Introduced GitHub Action to manage changelog updates.
 
 
