@@ -9,6 +9,7 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 ## [UNRELEASED - DD.MM.YYYY]
 ### Changed
 - #5432 Change dependency-check output format to JSON and update file path.
+- #5432 Change dependency-check output format to JSON and update file path.
 - #XXX updated variables in github actions to be more generic
 
 ### Added
