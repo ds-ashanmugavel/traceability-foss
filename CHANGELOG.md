@@ -23,6 +23,7 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 
 
 ### Removed
+- #7567 Removed unused BPN EDC URL mappings endpoint from BpnMappingController.
 
 ## [13.0.2 - 16.08.2024]
 
