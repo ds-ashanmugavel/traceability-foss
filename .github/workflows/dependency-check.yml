@@ -54,11 +54,12 @@ jobs:
         with:
           project: 'tx-backend'
           path: 'tx-backend'
-          format: 'HTML'
-          out: 'tx-backend/target/depcheck-report.html'
+          format: 'JSON'
+          out: 'tx-backend/target/depcheck-report.json'
           args: >
             --failOnCVSS ${{ env.FAIL_BUILD_ON_CVSS }}
             --suppression ${{ env.SUPPRESSIONS_FILE }}
+            --prettyPrint
         env:
           # actions/setup-java changes JAVA_HOME, so it needs to be reset to match the depcheck image
           JAVA_HOME: /opt/jdk
@@ -77,34 +78,12 @@ jobs:
           # actions/setup-java changes JAVA_HOME, so it needs to be reset to match the depcheck image
           JAVA_HOME: /opt/jdk
 
-      - name: Dependency check tx-backend # possible severity values: <'fail'|'warn'|'ignore'>
-        uses: dependency-check/Dependency-Check_Action@3102a65fd5f36d0000297576acc56a475b0de98d
-        with:
-            project: 'tx-backend'
-            path: 'tx-backend'
-            format: 'JSON'
-            out: 'tx-backend/target/depcheck-report.json'
-            args: >
-              --failOnCVSS ${{ env.FAIL_BUILD_ON_CVSS }}
-              --suppression ${{ env.SUPPRESSIONS_FILE }}
-              --prettyPrint
-        env:
-          # actions/setup-java changes JAVA_HOME, so it needs to be reset to match the depcheck image
-          JAVA_HOME: /opt/jdk
-
       - name: Upload results for tx-backend
         if: always()
         uses: actions/upload-artifact@master
         with:
           name: Depcheck report tx-backend
           path: tx-backend/target/depcheck-report.json
-
-      - name: Upload results for tx-backend
-        if: always()
-        uses: actions/upload-artifact@master
-        with:
-          name: Depcheck report tx-backend
-          path: tx-backend/target/depcheck-report.html
 
       - name: Upload results for tx-models
         if: always()
