@@ -85,7 +85,6 @@ jobs:
         run: |
           mvn clean package -pl tx-models,tx-backend --batch-mode -DskipTests
 
-      # CodeQL Analyse
       - name: Perform CodeQL Analysis
         id: analyze
         uses: github/codeql-action/analyze@v3
