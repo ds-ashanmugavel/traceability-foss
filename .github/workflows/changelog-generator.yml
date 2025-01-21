@@ -56,6 +56,13 @@ jobs:
 
             echo "INPUT_FILE=Input.json" >> $GITHUB_ENV
 
+      - name: Upload Input.json as artifact
+        if: steps.check_existing_comment.outputs.exists == 'false'
+        uses: actions/upload-artifact@v3
+        with:
+          name: input-file
+          path: Input.json
+
       - name: Set up Python environment
         if: steps.check_existing_comment.outputs.exists == 'false'
         uses: actions/setup-python@v5
