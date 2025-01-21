@@ -11,6 +11,7 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 - #XXX updated variables in github actions to be more generic
 
 ### Added
+- #5555 Upload CodeQL analysis report as an artifact.
 - #XXXX Introduced GitHub Action to manage changelog updates.
 
 
