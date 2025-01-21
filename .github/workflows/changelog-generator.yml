@@ -45,10 +45,10 @@ jobs:
             git fetch origin "$BASE_REF:$BASE_REF"
             git diff "origin/$BASE_REF" > "raw_diff.txt"
 
-           jq -n \
+            jq -n \
               --arg title "$PR_TITLE" \
               --arg description "$PR_BODY" \
-              --argfile diff raw_diff.txt \
+              --arg diff "$(cat raw_diff.txt | sed 's/"/\\"/g' | tr '\n' ' ')" \
               '{
                 title: $title,
                 description: $description,
