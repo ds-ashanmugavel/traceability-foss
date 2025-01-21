@@ -7,6 +7,9 @@ on:
 jobs:
   changelog:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      OPENAPI_KEY: ${{ secrets.OPENAPI_KEY }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -14,7 +17,7 @@ jobs:
       - name: Verify existing changelog comment
         id: check_existing_comment
         run: |
-          COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          COMMENTS=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
                         -H "Accept: application/vnd.github.v3+json" \
                         "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments")
           echo "$COMMENTS"
@@ -73,13 +76,13 @@ jobs:
         run: |
           PROMPT="You are tasked with creating a concise and strictly formatted changelog entry based on the input file, which contains Git diffs, Pull Request (PR) titles, and descriptions; the changelog entry must fit to the format ('Category: #XXXX Brief description.') where 'Category' is replaced with 'Added,' 'Changed,' or 'Removed' based on the nature of the change inferred primarily from the Git diff while using the PR title and description only for supplementary context, and the issue number is extracted from the PR title (format: #XXXX) or replaced with #XXXX as a placeholder if absent; the entire entry must not exceed 15 words, with a strict focus on the Git diff content to ensure precision, structure, and alignment with these rules. Use only # as a special character, otherwise use only letters and numbers. Ensure the response is a single string without line breaks, backticks, apostrophe or extra formatting."
           INPUT_FILE="${{ env.INPUT_FILE }}"
-          RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "${{ secrets.OPENAPIKEY }}" "$INPUT_FILE" "$PROMPT")
+          RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "$OPENAPI_KEY" "$INPUT_FILE" "$PROMPT")
           echo "changelog_entry=$RESPONSE" >> $GITHUB_OUTPUT
 
       - name: Apply changelog updates
         if: steps.check_existing_comment.outputs.exists == 'false' && steps.generate_changelog.outputs.changelog_entry != null
         run: |
-          rm ${{ env.INPUT_FILE }}
+          if [ -f ${{ env.INPUT_FILE }} ]; then rm ${{ env.INPUT_FILE }}; fi
           python ./.github/changelog/Changelog.py "${{ steps.generate_changelog.outputs.changelog_entry }}" "./CHANGELOG.md"
           git add CHANGELOG.md
           git commit -m "docs: update changelog"
