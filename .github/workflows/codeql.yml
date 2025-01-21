@@ -92,3 +92,8 @@ jobs:
           output: "codeql-results.sarif"
           upload: true
 
+      - name: Upload SARIF results
+        uses: actions/upload-artifact@v3
+        with:
+          name: codeql-results-java
+          path: /home/runner/work/traceability-foss/traceability-foss/codeql-results.sarif/java.sarif
