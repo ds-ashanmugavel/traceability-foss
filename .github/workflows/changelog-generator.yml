@@ -5,43 +5,43 @@ on:
     types: [opened, edited, synchronize]
 
 jobs:
-  check-comment:
-    name: "Check for Existing Changelog Comment"
+  changelog:
     runs-on: ubuntu-latest
-    outputs:
-      exists: ${{ steps.check.outputs.exists }}
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check Existing Changelog Comment
+      - name: "Check for existing changelog comment"
         id: check
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          COMMENTS=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" \
+          COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                         -H "Accept: application/vnd.github.v3+json" \
                         "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments")
-
+          echo "$COMMENTS"
           if echo "$COMMENTS" | grep -q "🎉 Changelog Updated!"; then
-            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Changelog comment already exists. Skipping workflow."
+            echo "exists=true" >> $GITHUB_ENV
           else
-            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "No existing changelog comment found. Continuing workflow."
+            echo "exists=false" >> $GITHUB_ENV
           fi
 
-  fetch-input:
-    name: "Fetch Input Data"
-    needs: check-comment
-    if: needs.check-comment.outputs.exists == 'false'
-    runs-on: ubuntu-latest
-    outputs:
-      input_file: ${{ steps.extract.outputs.input_file }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - name: "Stop if changelog comment exists"
+        if: env.exists == 'true'
+        run: |
+          echo "Changelog already updated. Exiting."
+          exit 0
 
-      - name: Extract Diff and PR Information
-        id: extract
+      - name: "Configure Git user"
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: "Get OpenAI Input File"
+        id: get_diff
+        shell: bash
         run: |
           PR_TITLE="${{ github.event.pull_request.title }}"
           PR_BODY="${{ github.event.pull_request.body }}"
@@ -51,81 +51,57 @@ jobs:
           git fetch origin "$HEAD_REF:$HEAD_REF"
           git checkout "$HEAD_REF"
           git fetch origin "$BASE_REF:$BASE_REF"
-          git diff "origin/$BASE_REF" > raw_diff.txt
+          git diff "origin/$BASE_REF" > "raw_diff.txt"
 
-          echo "Pull Request Title: $PR_TITLE" > Input.txt
-          echo "" >> Input.txt
-          echo "Pull Request Description:" >> Input.txt
-          echo "$PR_BODY" >> Input.txt
-          echo "" >> Input.txt
-          echo "Diff:" >> Input.txt
-          cat raw_diff.txt >> Input.txt
+          echo "Pull Request Title: $PR_TITLE" > "Input.txt"
+          echo "" >> "Input.txt"
+          echo "Pull Request Description:" >> "Input.txt"
+          echo "$PR_BODY" >> "Input.txt"
+          echo "" >> "Input.txt"
+          echo "Diff:" >> "Input.txt"
+          cat "raw_diff.txt" >> "Input.txt"
+          rm raw_diff.txt
 
-          echo "input_file=Input.txt" >> $GITHUB_OUTPUT
+          echo "INPUT_FILE=Input.txt" >> $GITHUB_ENV
 
-      - name: Upload Input File
+      - name: Upload diff file
         uses: actions/upload-artifact@v4
         with:
-          name: "Changelog Input File"
-          path: Input.txt
+          name: "INPUT_FILE"
+          path: ${{ env.INPUT_FILE }}
 
-  openai-request:
-    name: "Generate Changelog Entry"
-    needs: fetch-input
-    runs-on: ubuntu-latest
-    outputs:
-      changelog_entry: ${{ steps.generate.outputs.changelog_entry }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Set Up Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
-      - name: Install Dependencies
+      - name: Send Request to OpenAI
         run: |
-          python -m pip install --no-cache-dir openai requests
-
-      - name: Generate Changelog Entry with OpenAI
-        id: generate
-        env:
-          OPENAI_KEY: ${{ secrets.OPENAPIKEY }}
-        run: |
-          INPUT_FILE="${{ needs.fetch-input.outputs.input_file }}"
+          python -m pip install openai requests
+          INPUT_FILE="${{ env.INPUT_FILE }}"
           PROMPT="You are tasked with creating a concise and strictly formatted changelog entry based on the input file, which contains Git diffs, Pull Request (PR) titles, and descriptions; the changelog entry must fit to the format ('Category: #XXXX Brief description.') where 'Category' is replaced with 'Added,' 'Changed,' or 'Removed' based on the nature of the change inferred primarily from the Git diff while using the PR title and description only for supplementary context, and the issue number is extracted from the PR title (format: #XXXX) or replaced with #XXXX as a placeholder if absent; the entire entry must not exceed 15 words, with a strict focus on the Git diff content to ensure precision, structure, and alignment with these rules. Use only # as a special character, otherwise use only letters and numbers. Ensure the response is a single string without line breaks, backticks, apostrophe or extra formatting."
-          RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "$OPENAI_KEY" "$INPUT_FILE" "$PROMPT")
-          echo "changelog_entry=$RESPONSE" >> $GITHUB_OUTPUT
+          RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "${{ secrets.OPENAPIKEY }}" "$INPUT_FILE" "$PROMPT")
 
-  update-changelog:
-    name: "Update Changelog"
-    needs: openai-request
-    runs-on: ubuntu-latest
-    outputs:
-      changelog_updated: ${{ steps.update.outputs.changelog_updated }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+          echo "response=$RESPONSE" >> $GITHUB_ENV
+          sleep 60
 
-      - name: Update Changelog File
-        id: update
+      - name: Use OpenAI Response
+        if: always()
         run: |
-          RESPONSE="${{ needs.openai-request.outputs.changelog_entry }}"
-          python ./.github/changelog/Changelog.py "$RESPONSE" "./CHANGELOG.md"
+          echo "Response from OpenAI: ${{ env.response }}"
+
+      - name: Update Changelog
+        if: always()
+        run: |
+          rm ${{ env.INPUT_FILE }}
+          python ./.github/changelog/Changelog.py "${{ env.response }}" "./CHANGELOG.md"
           git add CHANGELOG.md
           git commit -m "Update changelog"
           git push origin "${{ github.event.pull_request.head.ref }}"
-          echo "changelog_updated=true" >> $GITHUB_OUTPUT
 
-  add-comment:
-    name: "Add PR Comment"
-    needs: update-changelog
-    if: needs.update-changelog.outputs.changelog_updated == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Add PR Comment
+      - name: Add PR comment
         uses: mshick/add-pr-comment@v2
+        if: success()
         with:
           message: |
             ## 🎉 Changelog Updated!
