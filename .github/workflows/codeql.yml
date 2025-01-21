@@ -37,8 +37,6 @@ jobs:
       fail-fast: false
       matrix:
         language: [ 'java', 'javascript' ]
-        # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
-        # Learn more about CodeQL language support at https://git.io/codeql-language-support
 
     steps:
       - name: Checkout repository
@@ -52,7 +50,7 @@ jobs:
           config-file: ./.github/codeql/codeql-config.yml
           queries: +security-and-quality,security-extended
 
-      # Autobuild attempts to build any compiled languages (C/C++, C#, or Java).
+      # Dependencies installieren und builden
       - name: Install frontend dependencies
         if: ${{ matrix.language == 'javascript' }}
         run: |
@@ -87,11 +85,14 @@ jobs:
         run: |
           mvn clean package -pl tx-models,tx-backend --batch-mode -DskipTests
 
+      # CodeQL Analyse
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
+        with:
+          output: "codeql-results.sarif"
 
       # Upload SARIF file
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: codeql-results.sarif # Adjust this path to the SARIF file output location
+          sarif_file: "codeql-results.sarif"
