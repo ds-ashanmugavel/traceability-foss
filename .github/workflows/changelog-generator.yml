@@ -52,7 +52,7 @@ jobs:
             echo "  \"diff\": \"$(cat raw_diff.txt | sed 's/"/\\"/g' | tr '\n' ' ')\"" >> "Input.json"
             echo "}" >> "Input.json"
 
-            if [ -f "raw_diff.txt" ]; then rm raw_diff.txt fi
+            if [ -f "raw_diff.txt" ]; then rm raw_diff.txt; fi
 
             echo "INPUT_FILE=Input.json" >> $GITHUB_ENV
 
