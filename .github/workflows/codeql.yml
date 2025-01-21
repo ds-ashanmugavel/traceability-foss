@@ -87,13 +87,12 @@ jobs:
 
       # CodeQL Analyse
       - name: Perform CodeQL Analysis
+        id: analyze
         uses: github/codeql-action/analyze@v3
         with:
-          output: "codeql-results.sarif"
-          upload: true
+          category: "/language:${{matrix.language}}"
 
-      - name: Upload SARIF results
-        uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v3
         with:
-          name: codeql-results-java
-          path: /home/runner/work/traceability-foss/traceability-foss/codeql-results.sarif/java.sarif
+          name: CodeQLSARIF
+          path: ${{ steps.analyze.outputs.sarif-output }}
