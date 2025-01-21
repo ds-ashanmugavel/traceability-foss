@@ -15,7 +15,6 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 
 
 ### Removed
-- #123 Deleted OpenAI text processing script from changelog management workflow.
 
 
 ## [13.0.2 - 16.08.2024]
