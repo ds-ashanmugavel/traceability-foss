@@ -24,6 +24,7 @@ on:
   schedule:
     - cron: '0 1 * * 1-5' # At 01:00 on every day-of-week from Monday through Friday.
   workflow_dispatch:
+
 jobs:
   analyze:
     name: Analyze
@@ -86,15 +87,21 @@ jobs:
           mvn clean package -pl tx-models,tx-backend --batch-mode -DskipTests
 
       - name: Perform CodeQL Analysis
-        id: analyze
+        run: |
+          codeql database analyze \
+            --format=csv \
+            --output=results-${{ matrix.language }}.csv \
+            .github/codeql-database
+
+      # Upload the CSV results
+      - name: Upload CSV Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: CodeQL-CSV-${{ matrix.language }}
+          path: results-${{ matrix.language }}.csv
+
+      # Optionally upload SARIF results if needed
+      - name: Perform SARIF Analysis
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{matrix.language}}"
-          output: results.csv${{matrix.language}}
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: CodeQLSARIF-${{ matrix.language }}
-          path: ${{ steps.analyze.outputs.sarif-output }}
-
-
