@@ -91,6 +91,7 @@ jobs:
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{matrix.language}}"
+          output: results.csv${{matrix.language}}
 
       - uses: actions/upload-artifact@v4
         with:
