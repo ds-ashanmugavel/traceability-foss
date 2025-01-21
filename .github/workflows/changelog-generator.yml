@@ -1,0 +1,106 @@
+name: "Changelog Generator"
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify existing changelog comment
+        id: check_existing_comment
+        run: |
+          COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                        -H "Accept: application/vnd.github.v3+json" \
+                        "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments")
+          echo "$COMMENTS"
+          if echo "$COMMENTS" | grep -q "🎉 Changelog Updated!"; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Configure Git user
+        if: steps.check_existing_comment.outputs.exists == 'false'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Generate input file from Git diff
+        if: steps.check_existing_comment.outputs.exists == 'false'
+        id: prepare_input
+        run: |
+            PR_TITLE="${{ github.event.pull_request.title }}"
+            PR_BODY="${{ github.event.pull_request.body }}"
+            BASE_REF="${{ github.event.pull_request.base.ref }}"
+            HEAD_REF="${{ github.event.pull_request.head.ref }}"
+
+            git fetch origin "$HEAD_REF:$HEAD_REF"
+            git checkout "$HEAD_REF"
+            git fetch origin "$BASE_REF:$BASE_REF"
+            git diff "origin/$BASE_REF" > "raw_diff.txt"
+
+            jq -n \
+              --arg title "$PR_TITLE" \
+              --arg description "$PR_BODY" \
+              --arg diff "$(cat raw_diff.txt | sed 's/"/\\"/g' | tr '\n' ' ')" \
+              '{
+                title: $title,
+                description: $description,
+                diff: $diff
+            }' > Input.json
+
+            if [ -f "raw_diff.txt" ]; then rm raw_diff.txt; fi
+
+            echo "INPUT_FILE=Input.json" >> $GITHUB_ENV
+
+      - name: Upload Input.json as artifact
+        if: steps.check_existing_comment.outputs.exists == 'false'
+        uses: actions/upload-artifact@v4
+        with:
+          name: input-file
+          path: Input.json
+
+      - name: Set up Python environment
+        if: steps.check_existing_comment.outputs.exists == 'false'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        if: steps.check_existing_comment.outputs.exists == 'false'
+        run: |
+          python -m pip install openai
+          python -m pip install requests
+
+      - name: Generate changelog entry
+        if: steps.check_existing_comment.outputs.exists == 'false'
+        id: generate_changelog
+        run: |
+          PROMPT="You are tasked with creating a concise and strictly formatted changelog entry based on the input file, which contains Git diffs, Pull Request (PR) titles, and descriptions; the changelog entry must fit to the format ('Category: #XXXX Brief description.') where 'Category' is replaced with 'Added,' 'Changed,' or 'Removed' based on the nature of the change inferred primarily from the Git diff while using the PR title and description only for supplementary context, and the issue number is extracted from the PR title (format: #XXXX) or replaced with #XXXX as a placeholder if absent; the entire entry must not exceed 15 words, with a strict focus on the Git diff content to ensure precision, structure, and alignment with these rules. Use only # as a special character, otherwise use only letters and numbers. Ensure the response is a single string without line breaks, backticks, apostrophe or extra formatting."
+          INPUT_FILE="${{ env.INPUT_FILE }}"
+          RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "${{ secrets.OPENAPIKEY }}" "$INPUT_FILE" "$PROMPT")
+          echo "changelog_entry=$RESPONSE" >> $GITHUB_OUTPUT
+          echo "OpenAI Response: $RESPONSE"
+      - name: Apply changelog updates
+        if: steps.check_existing_comment.outputs.exists == 'false' && steps.generate_changelog.outputs.changelog_entry != null
+        run: |
+          if [ -f ${{ env.INPUT_FILE }} ]; then rm ${{ env.INPUT_FILE }}; fi
+          python ./.github/changelog/Changelog.py "${{ steps.generate_changelog.outputs.changelog_entry }}" "./CHANGELOG.md"
+          git add CHANGELOG.md
+          git commit -m "docs: update changelog"
+          git push origin "${{ github.event.pull_request.head.ref }}"
+
+      - name: Post changelog update comment
+        uses: mshick/add-pr-comment@v2
+        if: steps.check_existing_comment.outputs.exists == 'false'
+        with:
+          message: |
+            ## 🎉 Changelog Updated!
+            The changelog has been successfully updated.
+          allow-repeats: true

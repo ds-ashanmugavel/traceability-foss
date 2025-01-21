@@ -8,21 +8,21 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 _**For better traceability add the corresponding GitHub issue number in each changelog entry, please.**_
 ## [UNRELEASED - DD.MM.YYYY]
 ### Changed
-- #XXX updated variables in github actions to be more generic
+
 
 ### Added
 - #XXXX Introduced GitHub Action to manage changelog updates.
 
 
-
-
-
-
-
-
-
-
 ### Removed
+
+
+
+
+
+
+
+
 
 ## [13.0.2 - 16.08.2024]
 
