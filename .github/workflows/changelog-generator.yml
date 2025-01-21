@@ -58,7 +58,7 @@ jobs:
 
       - name: Upload Input.json as artifact
         if: steps.check_existing_comment.outputs.exists == 'false'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: input-file
           path: Input.json
