@@ -60,13 +60,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: "pip"
 
       - name: Install Python dependencies
         if: steps.check_existing_comment.outputs.exists == 'false'
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install openai requests
+          python -m pip install openai
+          python -m pip install requests
 
       - name: Generate changelog entry
         if: steps.check_existing_comment.outputs.exists == 'false'
