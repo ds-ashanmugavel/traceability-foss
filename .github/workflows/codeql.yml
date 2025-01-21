@@ -94,5 +94,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: CodeQLSARIF
+          name: CodeQLSARIF-${{ matrix.language }}
           path: ${{ steps.analyze.outputs.sarif-output }}
+
+
