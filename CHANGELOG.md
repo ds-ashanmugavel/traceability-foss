@@ -15,6 +15,7 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 
 
 ### Removed
+- #123 Deleted OpenAi_Text.
 
 
 
