@@ -11,8 +11,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check for existing changelog comment
-        id: check
+      - name: Verify existing changelog comment
+        id: check_existing_comment
         run: |
           COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                         -H "Accept: application/vnd.github.v3+json" \
@@ -25,13 +25,13 @@ jobs:
           fi
 
       - name: Configure Git user
-        if: steps.check.outputs.exists == 'false'
+        if: steps.check_existing_comment.outputs.exists == 'false'
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Extract Git diff and prepare input file
-        if: steps.check.outputs.exists == 'false'
+      - name: Generate input file from Git diff
+        if: steps.check_existing_comment.outputs.exists == 'false'
         id: prepare_input
         run: |
           PR_TITLE="${{ github.event.pull_request.title }}"
@@ -55,40 +55,40 @@ jobs:
 
           echo "INPUT_FILE=Input.txt" >> $GITHUB_ENV
 
-      - name: Set up Python
-        if: steps.check.outputs.exists == 'false'
+      - name: Set up Python environment
+        if: steps.check_existing_comment.outputs.exists == 'false'
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: "pip"
 
-      - name: Install dependencies
-        if: steps.check.outputs.exists == 'false'
+      - name: Install Python dependencies
+        if: steps.check_existing_comment.outputs.exists == 'false'
         run: |
           python -m pip install --upgrade pip
           python -m pip install openai requests
 
       - name: Generate changelog entry
-        if: steps.check.outputs.exists == 'false'
+        if: steps.check_existing_comment.outputs.exists == 'false'
         id: generate_changelog
         run: |
           PROMPT="You are tasked with creating a concise and strictly formatted changelog entry based on the input file, which contains Git diffs, Pull Request (PR) titles, and descriptions; the changelog entry must fit to the format ('Category: #XXXX Brief description.') where 'Category' is replaced with 'Added,' 'Changed,' or 'Removed' based on the nature of the change inferred primarily from the Git diff while using the PR title and description only for supplementary context, and the issue number is extracted from the PR title (format: #XXXX) or replaced with #XXXX as a placeholder if absent; the entire entry must not exceed 15 words, with a strict focus on the Git diff content to ensure precision, structure, and alignment with these rules. Use only # as a special character, otherwise use only letters and numbers. Ensure the response is a single string without line breaks, backticks, apostrophe or extra formatting."
           INPUT_FILE="${{ env.INPUT_FILE }}"
           RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "${{ secrets.OPENAPIKEY }}" "$INPUT_FILE" "$PROMPT")
-          echo "response=$RESPONSE" >> $GITHUB_OUTPUT
+          echo "changelog_entry=$RESPONSE" >> $GITHUB_OUTPUT
 
-      - name: Update Changelog
-        if: steps.check.outputs.exists == 'false' && steps.generate_changelog.outputs.response != null
+      - name: Apply changelog updates
+        if: steps.check_existing_comment.outputs.exists == 'false' && steps.generate_changelog.outputs.changelog_entry != null
         run: |
           rm ${{ env.INPUT_FILE }}
-          python ./.github/changelog/Changelog.py "${{ steps.generate_changelog.outputs.response }}" "./CHANGELOG.md"
+          python ./.github/changelog/Changelog.py "${{ steps.generate_changelog.outputs.changelog_entry }}" "./CHANGELOG.md"
           git add CHANGELOG.md
-          git commit -m "Updated changelog"
+          git commit -m "docs: update changelog"
           git push origin "${{ github.event.pull_request.head.ref }}"
 
-      - name: Add PR comment
+      - name: Post changelog update comment
         uses: mshick/add-pr-comment@v2
-        if: steps.check.outputs.exists == 'false'
+        if: steps.check_existing_comment.outputs.exists == 'false'
         with:
           message: |
             ## 🎉 Changelog Updated!
