@@ -85,16 +85,17 @@ jobs:
         run: |
           mvn clean package -pl tx-models,tx-backend --batch-mode -DskipTests
 
-      # CodeQL Analyse
       - name: Perform CodeQL Analysis
         id: analyze
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{matrix.language}}"
+          output: ./codeql_results_${{ matrix.language }}.json
+
 
       - uses: actions/upload-artifact@v4
         with:
-          name: CodeQLSARIF-${{ matrix.language }}
-          path: ${{ steps.analyze.outputs.sarif-output }}
+          name: CodeQLJSON-${{ matrix.language }}
+          path: ./codeql_results_${{ matrix.language }}.json
 
 
