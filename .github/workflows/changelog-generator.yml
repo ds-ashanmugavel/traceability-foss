@@ -35,13 +35,13 @@ jobs:
     if: needs.check-comment.outputs.exists == 'false'
     runs-on: ubuntu-latest
     outputs:
-      input_file: ${{ steps.set_output.outputs.input_file }}
+      input_file: ${{ steps.extract.outputs.input_file }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Extract Diff and PR Information
-        id: set_output
+        id: extract
         run: |
           PR_TITLE="${{ github.event.pull_request.title }}"
           PR_BODY="${{ github.event.pull_request.body }}"
@@ -61,7 +61,7 @@ jobs:
           echo "Diff:" >> Input.txt
           cat raw_diff.txt >> Input.txt
 
-          echo "Input.txt" >> $GITHUB_OUTPUT
+          echo "input_file=Input.txt" >> $GITHUB_OUTPUT
 
       - name: Upload Input File
         uses: actions/upload-artifact@v4
@@ -90,7 +90,7 @@ jobs:
         env:
           OPENAI_KEY: ${{ secrets.OPENAPIKEY }}
         run: |
-          INPUT_FILE=Input.txt
+          INPUT_FILE="${{ needs.fetch-input.outputs.input_file }}"
           PROMPT="You are tasked with creating a concise and strictly formatted changelog entry based on the input file, which contains Git diffs, Pull Request (PR) titles, and descriptions; the changelog entry must fit to the format ('Category: #XXXX Brief description.') where 'Category' is replaced with 'Added,' 'Changed,' or 'Removed' based on the nature of the change inferred primarily from the Git diff while using the PR title and description only for supplementary context, and the issue number is extracted from the PR title (format: #XXXX) or replaced with #XXXX as a placeholder if absent; the entire entry must not exceed 15 words, with a strict focus on the Git diff content to ensure precision, structure, and alignment with these rules. Use only # as a special character, otherwise use only letters and numbers. Ensure the response is a single string without line breaks, backticks, apostrophe or extra formatting."
           RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "$OPENAI_KEY" "$INPUT_FILE" "$PROMPT")
           echo "changelog_entry=$RESPONSE" >> $GITHUB_OUTPUT
@@ -100,7 +100,7 @@ jobs:
     needs: openai-request
     runs-on: ubuntu-latest
     outputs:
-      changelog_updated: ${{ steps.update.outputs.success }}
+      changelog_updated: ${{ steps.update.outputs.changelog_updated }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -113,7 +113,7 @@ jobs:
           git add CHANGELOG.md
           git commit -m "Update changelog"
           git push origin "${{ github.event.pull_request.head.ref }}"
-          echo "success=true" >> $GITHUB_OUTPUT
+          echo "changelog_updated=true" >> $GITHUB_OUTPUT
 
   add-comment:
     name: "Add PR Comment"
