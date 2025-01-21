@@ -35,26 +35,26 @@ jobs:
         if: steps.check_existing_comment.outputs.exists == 'false'
         id: prepare_input
         run: |
-          PR_TITLE="${{ github.event.pull_request.title }}"
-          PR_BODY="${{ github.event.pull_request.body }}"
-          BASE_REF="${{ github.event.pull_request.base.ref }}"
-          HEAD_REF="${{ github.event.pull_request.head.ref }}"
+            PR_TITLE="${{ github.event.pull_request.title }}"
+            PR_BODY="${{ github.event.pull_request.body }}"
+            BASE_REF="${{ github.event.pull_request.base.ref }}"
+            HEAD_REF="${{ github.event.pull_request.head.ref }}"
 
-          git fetch origin "$HEAD_REF:$HEAD_REF"
-          git checkout "$HEAD_REF"
-          git fetch origin "$BASE_REF:$BASE_REF"
-          git diff "origin/$BASE_REF" > "raw_diff.txt"
+            git fetch origin "$HEAD_REF:$HEAD_REF"
+            git checkout "$HEAD_REF"
+            git fetch origin "$BASE_REF:$BASE_REF"
+            git diff "origin/$BASE_REF" > "raw_diff.txt"
 
-          echo "Pull Request Title: $PR_TITLE" > "Input.txt"
-          echo "" >> "Input.txt"
-          echo "Pull Request Description:" >> "Input.txt"
-          echo "$PR_BODY" >> "Input.txt"
-          echo "" >> "Input.txt"
-          echo "Diff:" >> "Input.txt"
-          cat "raw_diff.txt" >> "Input.txt"
-          rm raw_diff.txt
+            # JSON-Datei erstellen
+            echo "{" > "Input.json"
+            echo "  \"title\": \"$PR_TITLE\"," >> "Input.json"
+            echo "  \"description\": \"$PR_BODY\"," >> "Input.json"
+            echo "  \"diff\": \"$(cat raw_diff.txt | sed 's/"/\\"/g' | tr '\n' ' ')\"" >> "Input.json"
+            echo "}" >> "Input.json"
 
-          echo "INPUT_FILE=Input.txt" >> $GITHUB_ENV
+            if [ -f "raw_diff.txt" ]; then rm raw_diff.txt fi
+
+            echo "INPUT_FILE=Input.json" >> $GITHUB_ENV
 
       - name: Set up Python environment
         if: steps.check_existing_comment.outputs.exists == 'false'
@@ -72,7 +72,7 @@ jobs:
         if: steps.check_existing_comment.outputs.exists == 'false'
         id: generate_changelog
         run: |
-          PROMPT="You are tasked with generating concise, accurate, and well-structured changelog entries. Your output must follow the format: 'Category: #XXXX Brief description.' To achieve this, adhere to the following steps: Analyze the Git diff to determine the type of change ('Added,' 'Changed,' or 'Removed') based on the primary modifications. Extract the issue number from the PR title in the format '#XXXX.' If no issue number is found, use '#XXXX' as a placeholder. Write a brief, clear description summarizing the Git diff in 15 words or fewer. Use the PR title and description only as supplementary context to refine the summary. The output must be a single string without line breaks, backticks, apostrophes, or extra formatting. Use only letters, numbers, and the '#' character. Example: If the Git diff indicates a new feature, with a PR title 'Add login feature #1234' and description 'Implements a new OAuth-based login system,' the output should be: 'Added: #1234 Implemented OAuth-based login system.' Focus on precision, clarity, and adherence to these guidelines."
+          PROMPT="You are tasked with creating a concise and strictly formatted changelog entry based on the input file, which contains Git diffs, Pull Request (PR) titles, and descriptions; the changelog entry must fit to the format ('Category: #XXXX Brief description.') where 'Category' is replaced with 'Added,' 'Changed,' or 'Removed' based on the nature of the change inferred primarily from the Git diff while using the PR title and description only for supplementary context, and the issue number is extracted from the PR title (format: #XXXX) or replaced with #XXXX as a placeholder if absent; the entire entry must not exceed 15 words, with a strict focus on the Git diff content to ensure precision, structure, and alignment with these rules. Use only # as a special character, otherwise use only letters and numbers. Ensure the response is a single string without line breaks, backticks, apostrophe or extra formatting."
           INPUT_FILE="${{ env.INPUT_FILE }}"
           RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "${{ secrets.OPENAPIKEY }}" "$INPUT_FILE" "$PROMPT")
           echo "changelog_entry=$RESPONSE" >> $GITHUB_OUTPUT
