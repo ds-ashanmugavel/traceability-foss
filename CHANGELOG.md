@@ -11,6 +11,7 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 
 
 ### Added
+- #123 Introduced GitHub Action to manage changelog updates.
 - #XXXX Introduced GitHub Action to manage changelog updates.
 
 
