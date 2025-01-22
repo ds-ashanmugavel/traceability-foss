@@ -37,7 +37,7 @@ jobs:
           git fetch origin "$HEAD_REF:$HEAD_REF"
           git checkout "$HEAD_REF"
           git fetch origin "$BASE_REF:$BASE_REF"
-          git diff origin/$BASE_REF origin/$HEAD_REF > pr_diff.txt
+          git diff origin/$BASE_REF > pr_diff.txt
           DIFF_CONTENT=$(cat pr_diff.txt)
           echo "DIFF_CONTENT= pr_diff.txt" >> $GITHUB_ENV
 
