@@ -51,9 +51,7 @@ jobs:
           PROMPT="Analyze the Maven dependency updates output provided in the file dependency-updates.txt and generate the following KPIs: 1. Total number of updates. 2. Count of Patch Updates (e.g., 1.0.1 to 1.0.2). 3. Count of Minor Updates (e.g., 1.0.1 to 1.1.0). 4. Count of Major Updates (e.g., 1.0.1 to 2.0.0). Calculate the percentage for each category (Patch, Minor, Major) relative to the total. Present results in a JSON format."
 
           OUTPUT_FILE="dependency-updates.txt"
-          API_KEY="${{ secrets.OPENAI_API_KEY }}"
-
-          RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "$API_KEY" "$OUTPUT_FILE" "$PROMPT")
+          RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "${{ secrets.OPENAPIKEY }}" "$OUTPUT_FILE" "$PROMPT")
           echo 'response<<EOF' >> $GITHUB_OUTPUT
           echo "$RESPONSE" >> $GITHUB_OUTPUT
           echo 'EOF' >> $GITHUB_OUTPUT
