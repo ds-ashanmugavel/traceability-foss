@@ -11,7 +11,7 @@ client = OpenAI(api_key=args.api_key)
 
 assistant = client.beta.assistants.create(
     name="Developer",
-    instructions="You are a Software Developer",
+    instructions="You are a Software Developer with high knowledge in software security",
     tools=[{"type": "file_search"}],
     model="gpt-4o-mini",
 )
