@@ -64,10 +64,8 @@ jobs:
           DIFF_CONTENT="${{ env.DIFF_CONTENT }}"
 
           RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "${{ secrets.OPENAPIKEY }}" "$DIFF_CONTENT" "$PROMPT")
-          echo "$RESPONSE" > response.txt
-          cat response.txt
-          RESPONSE_CONTENT=$(cat response.txt)
-          echo "PR_DESCRIPTION=$RESPONSE_CONTENT" >> $GITHUB_OUTPUT
+          echo "PR_DESCRIPTION=$RESPONSE" >> $GITHUB_OUTPUT
+          echo "OpenAI Response: $RESPONSE"
 
       - name: Upload Input.json as artifact
         uses: actions/upload-artifact@v4
@@ -81,5 +79,5 @@ jobs:
         with:
           message: |
             ## 🎉 Automated PR Review Result
-            ${{ steps.analyze_diff.outputs.PR_DESCRIPTION }}
+            "${{ steps.analyze_diff.outputs.PR_DESCRIPTION }}"
           allow-repeats: true
