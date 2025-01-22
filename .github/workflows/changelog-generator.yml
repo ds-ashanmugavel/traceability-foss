@@ -98,7 +98,7 @@ jobs:
 
       - name: Post changelog update comment
         uses: mshick/add-pr-comment@v2
-        if: steps.check_existing_comment.outputs.exists == 'false'
+        if: steps.check_existing_comment.outputs.exists == 'false' && success()
         with:
           message: |
             ## 🎉 Changelog Updated!

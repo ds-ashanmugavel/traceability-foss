@@ -1,0 +1,83 @@
+name: "Automated PR Review"
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for existing comment and delete if necessary
+        id: check_existing_comment
+        run: |
+
+          COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                         -H "Accept: application/vnd.github.v3+json" \
+                         "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments")
+          echo "$COMMENTS"
+
+          # Filter the comments and extract the ID for the target comment
+            COMMENT_ID=$(echo "$COMMENTS" | jq -r '.[] | select(.body | contains("Automated PR Review Result")) | .id')
+
+            if [ -n "$COMMENT_ID" ]; then
+              echo "Found comment ID: $COMMENT_ID"
+              curl -s -X DELETE -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                -H "Accept: application/vnd.github.v3+json" \
+                "https://api.github.com/repos/${{ github.repository }}/issues/comments/$COMMENT_ID"
+            else
+              echo "No matching comment found."
+            fi
+
+      - name: Fetch Git diff
+        id: get_diff
+        run: |
+          BASE_REF="${{ github.event.pull_request.base.ref }}"
+          HEAD_REF="${{ github.event.pull_request.head.ref }}"
+
+          git fetch origin "$HEAD_REF:$HEAD_REF"
+          git checkout "$HEAD_REF"
+          git fetch origin "$BASE_REF:$BASE_REF"
+          git diff origin/$BASE_REF > pr_diff.txt
+          DIFF_CONTENT=$(cat pr_diff.txt)
+          echo "DIFF_CONTENT=pr_diff.txt" >> $GITHUB_ENV
+
+      - name: Upload Input.json as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DIFF_CONTENT
+          path: pr_diff.txt
+
+      - name: Set up Python environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install requests
+          python -m pip install openai
+
+      - name: Analyze PR Diff with OpenAI
+        id: analyze_diff
+        run: |
+          PROMPT="You are tasked with analyzing the provided Git diff file and crafting a concise and strictly formatted review comment based on the changes. Your comment must focus on identifying potential bugs or issues with a clear explanation, suggesting specific improvements aligned with best practices, and confirming high-quality aspects of the changes. Write your response as a single, cohesive comment. Rely primarily on the Git diff content, ensuring actionable and precise feedback while avoiding unnecessary formatting or verbosity."
+          DIFF_CONTENT="${{ env.DIFF_CONTENT }}"
+
+          RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "${{ secrets.OPENAPIKEY }}" "$DIFF_CONTENT" "$PROMPT")
+          echo 'response<<EOF' >> $GITHUB_OUTPUT
+          echo "$RESPONSE" >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
+
+      - name: Post Review update comment
+        uses: mshick/add-pr-comment@v2
+        if: steps.analyze_diff.outputs.response != null
+        with:
+          message: |
+            ## Automated PR Review Result
+            "${{ steps.analyze_diff.outputs.response }}"
+          allow-repeats: true
