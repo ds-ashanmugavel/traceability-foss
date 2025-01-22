@@ -1,0 +1,66 @@
+name: Maven Dependency Updates
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  dependency-updates:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Set up Java and Maven
+      - name: Set up Java and Maven
+        uses: actions/setup-java@v3
+        with:
+          java-version: '20'
+          distribution: 'adopt'
+
+      # Run Maven dependency updates
+      - name: Run Maven Dependency Updates
+        id: run_maven_updates
+        run: |
+          mvn versions:display-dependency-updates | grep '^\[INFO\]' > dependency-updates.txt
+          echo "dependency-updates-file=dependency-updates.txt" >> $GITHUB_OUTPUT
+
+      # Upload the results as an artifact
+      - name: Upload Dependency Updates
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-updates
+          path: ${{ steps.run_maven_updates.outputs.dependency-updates-file }}
+
+      # Set up Python environment
+      - name: Set up Python environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install openai
+
+      # Analyze dependency updates using OpenAI
+      - name: Analyze Dependency Updates with OpenAI
+        id: analyze_dependencies
+        run: |
+          PROMPT="You are tasked with analyzing the provided file, 'dependency-updates.txt,' which contains Maven dependency update information. Based on this input, generate the following KPIs: 1. Total number of updates. 2. Count of Patch Updates 3. Count of Minor Updates . Count of Major . And then present  the results strictly. Focus solely on the content of the 'dependency-updates.txt' file to ensure accuracy and precision."
+          OUTPUT_FILE="dependency-updates.txt"
+          RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "${{ secrets.OPENAPIKEY }}" "$OUTPUT_FILE" "$PROMPT")
+          echo 'response<<EOF' >> $GITHUB_OUTPUT
+          echo "$RESPONSE" >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
+
+
+      # Post the analysis result as a PR comment
+      - name: Post Dependency Analysis Comment
+        uses: mshick/add-pr-comment@v2
+        with:
+          message: |
+            ## Dependency Updates Analysis
+            ${{ steps.analyze_dependencies.outputs.response }}
+          allow-repeats: true
