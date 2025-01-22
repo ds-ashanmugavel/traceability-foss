@@ -1,0 +1,35 @@
+name: Maven Dependency Updates
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  dependency-updates:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Set up Java and Maven
+      - name: Set up Java and Maven
+        uses: actions/setup-java@v3
+        with:
+          java-version: '20'
+          distribution: 'adopt'
+
+      # Run Maven dependency updates
+      - name: Run Maven Dependency Updates
+        run: |
+          mvn versions:display-dependency-updates > dependency-updates.txt
+
+      # Upload the results as an artifact
+      - name: Upload Dependency Updates
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-updates
+          path: dependency-updates.txt
