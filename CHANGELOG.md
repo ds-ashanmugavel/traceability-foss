@@ -12,7 +12,6 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 
 ### Added
 - #123 Create automated PR review workflow with GitHub Actions.
-- #123 Create automated PR review workflow with GitHub Actions.
 - #XXXX Introduced GitHub Action to manage changelog updates.
 
 
