@@ -72,13 +72,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: PR_DESCRIPTION_FILE
-          path: $steps.analyze_diff.outputs.PR_DESCRIPTION
+          path: $steps.analyze_diff.outputs.response
 
       - name: Post Review update comment
         uses: mshick/add-pr-comment@v2
-        if: steps.analyze_diff.outputs.PR_DESCRIPTION != null
+        if: steps.analyze_diff.outputs.response != null
         with:
           message: |
             ## 🎉 Automated PR Review Result
-            "${{ steps.analyze_diff.outputs.PR_DESCRIPTION }}"
+            "${{ steps.analyze_diff.outputs.response }}"
           allow-repeats: true
