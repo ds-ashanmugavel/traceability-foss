@@ -11,7 +11,7 @@ client = OpenAI(api_key=args.api_key)
 
 assistant = client.beta.assistants.create(
     name="Developer",
-    instructions="You are a Software Developer with high knowlinge in software security",
+    instructions="You are a Software Developer",
     tools=[{"type": "file_search"}],
     model="gpt-4o-mini",
 )
@@ -51,4 +51,4 @@ def process_file_and_query(file_path, user_query):
 # Beispielnutzung
 
 response = process_file_and_query(args.filename, args.prompt)
-print(response)
+print(f"{response.value}\n\n")
