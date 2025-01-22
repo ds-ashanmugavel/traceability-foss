@@ -60,7 +60,7 @@ jobs:
       - name: Analyze PR Diff with OpenAI
         id: analyze_diff
         run: |
-          PROMPT="You are a code reviewer. Analyze the following Git diff and provide a concise, actionable review comment highlighting any issues, improvements, or confirmations of quality in the changes. Focus on best practices, potential bugs, and code quality improvements."
+          PROMPT="You are tasked with analyzing the provided Git diff file and crafting a concise and strictly formatted review comment based on the changes. Your comment must focus on identifying potential bugs or issues with a clear explanation, suggesting specific improvements aligned with best practices, and confirming high-quality aspects of the changes. Write your response as a single, cohesive comment. Rely primarily on the Git diff content, ensuring actionable and precise feedback while avoiding unnecessary formatting or verbosity."
           DIFF_CONTENT="${{ env.DIFF_CONTENT }}"
 
           RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "${{ secrets.OPENAPIKEY }}" "$DIFF_CONTENT" "$PROMPT")
