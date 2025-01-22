@@ -39,7 +39,7 @@ jobs:
           git fetch origin "$BASE_REF:$BASE_REF"
           git diff origin/$BASE_REF > pr_diff.txt
           DIFF_CONTENT=$(cat pr_diff.txt)
-          echo "DIFF_CONTENT= pr_diff.txt" >> $GITHUB_ENV
+          echo "DIFF_CONTENT=pr_diff.txt" >> $GITHUB_ENV
 
       - name: Upload Input.json as artifact
         uses: actions/upload-artifact@v4
