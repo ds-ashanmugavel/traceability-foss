@@ -48,7 +48,7 @@ jobs:
       - name: Analyze Dependency Updates with OpenAI
         id: analyze_dependencies
         run: |
-          PROMPT="You are tasked with analyzing the provided file, 'dependency-updates.txt,' which contains Maven dependency update information. Based on this input, generate the following KPIs: 1. Total number of updates. 2. Count of Patch Updates (e.g., 1.0.1 to 1.0.2). 3. Count of Minor Updates (e.g., 1.0.1 to 1.1.0). 4. Count of Major Updates (e.g., 1.0.1 to 2.0.0). Calculate the percentage for each category (Patch, Minor, Major) relative to the total. And then present  the results strictly. Focus solely on the content of the 'dependency-updates.txt' file to ensure accuracy and precision."
+          PROMPT="You are tasked with analyzing the provided file, 'dependency-updates.txt,' which contains Maven dependency update information. Based on this input, generate the following KPIs: 1. Total number of updates. 2. Count of Patch Updates 3. Count of Minor Updates . Count of Major . And then present  the results strictly. Focus solely on the content of the 'dependency-updates.txt' file to ensure accuracy and precision."
           OUTPUT_FILE="dependency-updates.txt"
           RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "${{ secrets.OPENAPIKEY }}" "$OUTPUT_FILE" "$PROMPT")
           echo 'response<<EOF' >> $GITHUB_OUTPUT
