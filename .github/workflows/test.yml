@@ -24,7 +24,7 @@ jobs:
       # Run Maven dependency updates
       - name: Run Maven Dependency Updates
         run: |
-          mvn versions:display-dependency-updates > dependency-updates.txt
+          mvn versions:display-dependency-updates | grep '^\[INFO\]' > dependency-updates.txt
 
       # Upload the results as an artifact
       - name: Upload Dependency Updates
