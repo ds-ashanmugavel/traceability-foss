@@ -4,7 +4,6 @@ on:
   workflow_dispatch:
   push:
 
-
 jobs:
   dependency-updates:
     runs-on: ubuntu-latest
@@ -23,12 +22,48 @@ jobs:
 
       # Run Maven dependency updates
       - name: Run Maven Dependency Updates
+        id: run_maven_updates
         run: |
           mvn versions:display-dependency-updates | grep '^\[INFO\]' > dependency-updates.txt
+          echo "dependency-updates-file=dependency-updates.txt" >> $GITHUB_OUTPUT
 
       # Upload the results as an artifact
       - name: Upload Dependency Updates
         uses: actions/upload-artifact@v4
         with:
           name: dependency-updates
-          path: dependency-updates.txt
+          path: ${{ steps.run_maven_updates.outputs.dependency-updates-file }}
+
+      # Set up Python environment
+      - name: Set up Python environment
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install openai
+
+      # Analyze dependency updates using OpenAI
+      - name: Analyze Dependency Updates with OpenAI
+        id: analyze_dependencies
+        run: |
+          PROMPT="Analyze the Maven dependency updates output provided in the file dependency-updates.txt and generate the following KPIs: 1. Total number of updates. 2. Count of Patch Updates (e.g., 1.0.1 to 1.0.2). 3. Count of Minor Updates (e.g., 1.0.1 to 1.1.0). 4. Count of Major Updates (e.g., 1.0.1 to 2.0.0). Calculate the percentage for each category (Patch, Minor, Major) relative to the total. Present results in a JSON format."
+
+          OUTPUT_FILE="dependency-updates.txt"
+          API_KEY="${{ secrets.OPENAI_API_KEY }}"
+
+          RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "$API_KEY" "$OUTPUT_FILE" "$PROMPT")
+          echo 'response<<EOF' >> $GITHUB_OUTPUT
+          echo "$RESPONSE" >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
+
+
+      # Post the analysis result as a PR comment
+      - name: Post Dependency Analysis Comment
+        uses: mshick/add-pr-comment@v2
+        with:
+          message: |
+            ## Dependency Updates Analysis
+            ${{ steps.analyze_dependencies.outputs.response }}
+          allow-repeats: true
