@@ -15,7 +15,7 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 
 
 ### Removed
-- #123 Updated instructions for the Developer assistant in OpenAI_File.
+
 
 
 
