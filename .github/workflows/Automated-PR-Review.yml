@@ -64,8 +64,9 @@ jobs:
           DIFF_CONTENT="${{ env.DIFF_CONTENT }}"
 
           RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "${{ secrets.OPENAPIKEY }}" "$DIFF_CONTENT" "$PROMPT")
-          echo "PR_DESCRIPTION=$RESPONSE" >> $GITHUB_OUTPUT
-          echo "OpenAI Response: $RESPONSE"
+          echo "$RESPONSE" > response.txt
+          cat response.txt
+          echo "PR_DESCRIPTION_FILE=response.txt" >> $GITHUB_OUTPUT
 
       - name: Post Review update comment
         uses: mshick/add-pr-comment@v2
