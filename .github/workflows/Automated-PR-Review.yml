@@ -66,7 +66,8 @@ jobs:
           RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "${{ secrets.OPENAPIKEY }}" "$DIFF_CONTENT" "$PROMPT")
           echo "$RESPONSE" > response.txt
           cat response.txt
-          echo "PR_DESCRIPTION_FILE=response.txt" >> $GITHUB_OUTPUT
+          RESPONSE_CONTENT=$(cat response.txt)
+          echo "PR_DESCRIPTION=$RESPONSE_CONTENT" >> $GITHUB_OUTPUT
 
       - name: Upload Input.json as artifact
         uses: actions/upload-artifact@v4
