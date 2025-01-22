@@ -73,12 +73,6 @@ jobs:
           echo "$RESPONSE" >> $GITHUB_OUTPUT
           echo 'EOF' >> $GITHUB_OUTPUT
 
-      - name: Upload Input.json as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: PR_DESCRIPTION_FILE
-          path: $steps.analyze_diff.outputs.response
-
       - name: Post Review update comment
         uses: mshick/add-pr-comment@v2
         if: steps.analyze_diff.outputs.response != null
