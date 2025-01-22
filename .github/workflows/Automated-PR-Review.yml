@@ -64,8 +64,9 @@ jobs:
           DIFF_CONTENT="${{ env.DIFF_CONTENT }}"
 
           RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "${{ secrets.OPENAPIKEY }}" "$DIFF_CONTENT" "$PROMPT")
-          echo "PR_DESCRIPTION=$RESPONSE" >> $GITHUB_OUTPUT
-          echo "OpenAI Response: $RESPONSE"
+          echo 'response<<EOF' >> $GITHUB_OUTPUT
+          echo "$RESPONSE" >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_OUTPUT
 
       - name: Upload Input.json as artifact
         uses: actions/upload-artifact@v4
