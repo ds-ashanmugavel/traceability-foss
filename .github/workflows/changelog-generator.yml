@@ -25,6 +25,12 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: Configure Git user
+        if: steps.check_existing_comment.outputs.exists == 'false'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Generate input file from Git diff
         if: steps.check_existing_comment.outputs.exists == 'false'
         id: prepare_input
