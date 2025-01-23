@@ -136,10 +136,14 @@ jobs:
         id: analyze
         uses: github/codeql-action/analyze@v3
         with:
-            category: "/language:${{matrix.language}}"
+          category: "/language:${{ matrix.language }}"
+
+      - name: Save SARIF as JSON
+        run: |
+          cp ${{ steps.analyze.outputs.sarif-output }} output.json
 
       - uses: actions/upload-artifact@v4
         with:
-          name: CodeQLSARIF${{matrix.language}}
-          path: ${{ steps.analyze.outputs.sarif-output }}
+          name: CodeQL_JSON_${{ matrix.language }}
+          path: output.json
 
