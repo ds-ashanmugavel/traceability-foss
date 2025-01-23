@@ -137,10 +137,9 @@ jobs:
         id: analyze
         uses: github/codeql-action/analyze@v3
         with:
-            category: "/language:${{matrix.language}}"
+          category: "/language:${{ matrix.language }}"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: CodeQL${{matrix.language}}
-          path: ${{ steps.analyze.outputs.${{matrix.language}} }}
-
+          name: CodeQL_JSON_${{ matrix.language }}
+          path: output-${{ matrix.language }}.json
