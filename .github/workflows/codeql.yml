@@ -51,6 +51,7 @@ on:
       - 'CHANGELOG.md'
   schedule:
     - cron: '0 1 * * 1-5' # At 01:00 on every day-of-week from Monday through Friday.
+  workflow_dispatch:
 
 jobs:
   analyze:
@@ -132,4 +133,28 @@ jobs:
           mvn clean package -pl tx-models,tx-backend --batch-mode -DskipTests
 
       - name: Perform CodeQL Analysis
+        id: analyze
         uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{matrix.language}}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CodeQL${{matrix.language}}
+          path: ${{ steps.analyze.outputs.sarif-output }}
+
+      - name: Perform CodeQL Analysis
+        run: |
+            echo "Path: ${{ steps.analyze.outputs.sarif-output }}"
+
+      - name: Rename SARIF as JSON
+        run: |
+           mv ${{ steps.analyze.outputs.sarif-output }}/java.sarif java-output.json
+           echo "INPUT_FILE=java-output.json" >> $GITHUB_ENV
+
+
+      - name: Upload Input.json as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: INPUT_FILE
+          path: java-output.json
