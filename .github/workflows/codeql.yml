@@ -149,5 +149,12 @@ jobs:
 
       - name: Rename SARIF as JSON
         run: |
-           mv ${{ steps.analyze.outputs.sarif-output }} output-${{ matrix.language }}.json
+           mv ${{ steps.analyze.outputs.sarif-output }}/java.sarif java-output.json
+           echo "INPUT_FILE=java-output.json" >> $GITHUB_ENV
 
+
+      - name: Upload Input.json as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: INPUT_FILE
+          path: java-output.json
