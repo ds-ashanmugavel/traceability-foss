@@ -16,13 +16,9 @@ assistant = client.beta.assistants.create(
     model="gpt-4o-mini",
 )
 
-# Funktion, um eine Datei hochzuladen und an eine Anfrage anzuhängen
 def process_file_and_query(file_path, user_query):
-    # Datei hochladen
     file_stream = open(file_path, "rb")
     message_file = client.files.create(file=file_stream, purpose="assistants")
-
-    # Thread erstellen und Datei anhängen
     thread = client.beta.threads.create(
         messages=[
             {
@@ -33,22 +29,19 @@ def process_file_and_query(file_path, user_query):
         ]
     )
 
-    # Run erstellen und auf Antwort warten
     run = client.beta.threads.runs.create_and_poll(thread_id=thread.id, assistant_id=assistant.id)
     messages = list(client.beta.threads.messages.list(thread_id=thread.id, run_id=run.id))
     if not messages:
         raise ValueError("No messages received from the OpenAI API.")
     if not messages[0].content:
         raise ValueError("No content in the first message.")
-    # Antwort abrufen
+
     response = messages[0].content[0].text
 
-    # Datei löschen, um Speicher zu schonen
     client.files.delete(file_id=message_file.id)
 
     return response
 
-# Beispielnutzung
 
 response = process_file_and_query(args.filename, args.prompt)
 print(f"{response.value}\n\n")

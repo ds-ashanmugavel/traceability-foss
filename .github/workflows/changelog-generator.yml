@@ -12,6 +12,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Configure Git user
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Verify existing changelog comment
         id: check_existing_comment
         run: |
@@ -24,12 +29,6 @@ jobs:
           else
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
-
-      - name: Configure Git user
-        if: steps.check_existing_comment.outputs.exists == 'false'
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Generate input file from Git diff
         if: steps.check_existing_comment.outputs.exists == 'false'
@@ -76,7 +75,6 @@ jobs:
         if: steps.check_existing_comment.outputs.exists == 'false'
         run: |
           python -m pip install openai
-          python -m pip install requests
 
       - name: Generate changelog entry
         if: steps.check_existing_comment.outputs.exists == 'false'
@@ -98,7 +96,7 @@ jobs:
 
       - name: Post changelog update comment
         uses: mshick/add-pr-comment@v2
-        if: steps.check_existing_comment.outputs.exists == 'false' && success()
+        if: steps.check_existing_comment.outputs.exists == 'false'
         with:
           message: |
             ## 🎉 Changelog Updated!
