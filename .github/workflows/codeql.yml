@@ -140,7 +140,7 @@ jobs:
 
       - name: Save SARIF as JSON
         run: |
-          cp ${{ steps.analyze.outputs.sarif-output }} output.json
+          cp ${{ steps.analyze.outputs.java.sarif }} output.json
 
       - uses: actions/upload-artifact@v4
         with:
