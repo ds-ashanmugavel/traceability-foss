@@ -140,5 +140,14 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: CodeQLSARIF
-          path: ${{ steps.analyze.outputs }}/java.sarif
+          name: CodeQL${{matrix.language}}
+          path: ${{ steps.analyze.outputs.sarif-output }}
+
+      - name: Perform CodeQL Analysis
+        run: |
+            echo "Path: ${{ steps.analyze.outputs.sarif-output }}"
+
+      - name: Rename SARIF as JSON
+        run: |
+           mv ${{ steps.analyze.outputs.sarif-output }} output-${{ matrix.language }}.json
+
