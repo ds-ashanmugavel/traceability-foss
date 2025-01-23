@@ -141,7 +141,7 @@ jobs:
 
       - name: Rename SARIF as JSON
         run: |
-          mv ${{ steps.analyze.outputs.${{ matrix.language }}.sarif output-${{ matrix.language }}.json
+          mv ${{ steps.analyze.outputs.${{ matrix.language }} }}.sarif output-${{ matrix.language }}.json
 
       - uses: actions/upload-artifact@v4
         with:
