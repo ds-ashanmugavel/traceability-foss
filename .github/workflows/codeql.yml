@@ -138,12 +138,11 @@ jobs:
         with:
           category: "/language:${{ matrix.language }}"
 
-      - name: Save SARIF as JSON
+      - name: Rename SARIF as JSON
         run: |
-          cp /home/runner/work/traceability-foss/results/java.sarif output.json
+          mv ${{ steps.analyze.outputs.sarif-output }} output-${{ matrix.language }}.json
 
       - uses: actions/upload-artifact@v4
         with:
-          name: CodeQL_JSON_${{ matrix.language }}
-          path: output.json
-
+           name: CodeQL_JSON_${{ matrix.language }}
+           path: output-${{ matrix.language }}.json
