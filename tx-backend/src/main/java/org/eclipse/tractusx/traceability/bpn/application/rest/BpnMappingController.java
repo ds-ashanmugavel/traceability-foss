@@ -62,61 +62,7 @@ public class BpnMappingController {
 
     private final BpnService service;
 
-    @Operation(operationId = "getBpnEdcs",
-            summary = "Get BPN EDC URL mappings",
-            tags = {"BpnEdcMapping"},
-            description = "The endpoint returns a result of BPN EDC URL mappings.",
-            security = @SecurityRequirement(name = "oAuth2", scopes = "profile email"))
-    @ApiResponses(value = {@ApiResponse(responseCode = "200", description = "Returns the paged result found", content = @Content(
-            mediaType = "application/json",
-            array = @ArraySchema(schema = @Schema(description = "BPN Mappings", implementation = BpnEdcMappingResponse.class, additionalProperties = Schema.AdditionalPropertiesValue.FALSE), minItems = 0, maxItems = Integer.MAX_VALUE)
-    )),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Bad request.",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(
-                    responseCode = "401",
-                    description = "Authorization failed.",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Not found.",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(
-                    responseCode = "403",
-                    description = "Forbidden.",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(
-                    responseCode = "415",
-                    description = "Unsupported media type",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(
-                    responseCode = "429",
-                    description = "Too many requests.",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal server error.",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponse.class)))})
-    @GetMapping("")
-    public List<BpnEdcMappingResponse> getBpnMappings() {
-        return BpnMapper.from(service.findAllBpnMappings());
-    }
+
 
     @Operation(operationId = "createBpnEdcUrlMappings",
             summary = "Creates BPN EDC URL mappings",
