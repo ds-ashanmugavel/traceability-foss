@@ -15,6 +15,7 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 
 
 ### Removed
+- #1230 Removed unused BPN EDC URL mappings method.
 
 
 
