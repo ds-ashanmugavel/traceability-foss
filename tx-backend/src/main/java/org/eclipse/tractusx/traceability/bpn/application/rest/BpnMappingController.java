@@ -171,7 +171,7 @@ public class BpnMappingController {
                             schema = @Schema(implementation = ErrorResponse.class)))})
     @PostMapping("")
     public List<BpnEdcMappingResponse> createBpnUrlMapping(@RequestBody @Valid @Size(max = 1000) List<BpnMappingRequest> bpnEdcMappings) {
-        log.info("BpnEdcController [createBpnEdcUrlMappings]");
+        log.info("BpnEdcController [createBpnEdcUrlMappings] - Received mappings: {}", bpnEdcMappings);
         return BpnMapper.from(service.saveAllBpnEdcMappings(bpnEdcMappings));
     }
 
