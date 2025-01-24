@@ -63,7 +63,6 @@ public class BpnMappingController {
     private final BpnService service;
 
 
-
     @Operation(operationId = "createBpnEdcUrlMappings",
             summary = "Creates BPN EDC URL mappings",
             tags = {"BpnEdcMapping"},
