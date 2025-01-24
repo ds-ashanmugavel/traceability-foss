@@ -15,8 +15,8 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 
 
 ### Removed
-- #1230 Removed getBpnEdcs operation and all related API responses.
-- #1230 Removed getBpnEdcs operation and all related API responses.
+
+
 
 
 
