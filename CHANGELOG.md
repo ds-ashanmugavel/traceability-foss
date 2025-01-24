@@ -11,7 +11,6 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 
 
 ### Added
-- #traceability-foss Creates BPN EDC URL mappings endpoint in BpnMappingController.
 - #XXXX Introduced GitHub Action to manage changelog updates.
 
 
