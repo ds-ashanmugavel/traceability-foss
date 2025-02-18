@@ -93,7 +93,7 @@ jobs:
         if: steps.generate_changelog.outputs.changelog_entry != null
         run: |
           if [ -f ${{ env.INPUT_FILE }} ]; then rm ${{ env.INPUT_FILE }}; fi
-          python ./.github/changelog/Changelog.py "${{ steps.generate_changelog.outputs.changelog_entry }}" "./CHANGELOG.md"
+          python ./.github/changelog/changelog.py "${{ steps.generate_changelog.outputs.changelog_entry }}" "./CHANGELOG.md"
           git add CHANGELOG.md
           git commit -m "docs: update changelog"
           git push origin "${{ github.event.pull_request.head.ref }}"
