@@ -85,6 +85,7 @@ jobs:
           RESPONSE=$(python ./.github/openai/openai_file.py "${{ secrets.OPENAPIKEY }}" "$INPUT_FILE" "$PROMPT")
           echo "changelog_entry=$RESPONSE" >> $GITHUB_OUTPUT
           echo "OpenAI Response: $RESPONSE"
+
       - name: Apply changelog updates
         if: steps.check_existing_comment.outputs.exists == 'false' && steps.generate_changelog.outputs.changelog_entry != null
         run: |
