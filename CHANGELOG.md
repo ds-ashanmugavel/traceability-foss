@@ -9,6 +9,7 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 ## [UNRELEASED - DD.MM.YYYY]
 ### Changed
 - #1230 Refactored changelog and automated PR review files.
+- #1230 Refactored changelog and automated PR review files.
 
 
 ### Added
