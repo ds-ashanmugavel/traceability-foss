@@ -86,11 +86,24 @@ jobs:
           PROMPT="You are tasked with creating a concise and strictly formatted changelog entry based on the input file, which contains Git diffs, Pull Request (PR) titles, and descriptions; the changelog entry must fit to the format ('Category: #XXXX Brief description.') where 'Category' is replaced with 'Added,' 'Changed,' or 'Removed' based on the nature of the change inferred primarily from the Git diff while using the PR title and description only for supplementary context, and the issue number is extracted from the PR title (format: #XXXX) or replaced with #XXXX as a placeholder if absent; the entire entry must not exceed 15 words, with a strict focus on the Git diff content to ensure precision, structure, and alignment with these rules. Use only # as a special character, otherwise use only letters and numbers. Ensure the response is a single string without line breaks, backticks, apostrophe or extra formatting."
           INPUT_FILE="${{ env.INPUT_FILE }}"
           RESPONSE=$(python ./.github/openai/openai_file.py "${{ secrets.OPENAPIKEY }}" "$INPUT_FILE" "$PROMPT")
-          echo "changelog_entry=$RESPONSE" >> $GITHUB_OUTPUT
+          CLEANED_RESPONSE=$(echo "$RESPONSE" | sed -E 's/^Text\(annotations=\[\], value='\''(.+)'\''\)$/\1/')
+
+          echo "changelog_entry=$CLEANED_RESPONSE" >> $GITHUB_OUTPUT
+          echo "Cleaned OpenAI Response: $CLEANED_RESPONSE"
+
+      - name: Check for duplicate changelog entry
+        if: steps.generate_changelog.outputs.changelog_entry != null
+        id: check_changelog
+        run: |
+          CHANGELOG_ENTRY="${{ steps.generate_changelog.outputs.changelog_entry }}"
+          PROMPT="You are tasked with verifying if a provided changelog entry already exists in an existing changelog.md file. The provided changelog entry will follow the format: 'Category: #3243 Brief description.'. Provided changelog entry: $CHANGELOG_ENTRY. Your Task: 1. Check if the provided changelog entry has a valid issue number (a placeholder like #XXXX is not a valid number). If no valid issue number exists, compare only the content. 2. Search the provided changelog file for a similar entry. - If an entry with the same issue number and content is found, respond: 'Duplicate found with same issue number: [matching changelog entry]'. - If an entry with similar content but a different issue number is found, respond: 'Duplicate found with different issue number: [matching changelog entry]'. - If the provided changelog entry has no valid issue number and a similar entry is found, respond: 'Duplicate found with no issue number: [matching changelog entry]'. 3. If no similar entry is found, respond: 'No duplicate found. Reason: The provided entry differs in content and/or issue number from all existing entries.' 4. Always include a brief reasoning for your conclusion. 5. Respond as a single plain text string with no line breaks, no special characters, and no formatting other than the provided changelog format."
+          RESPONSE=$(python ./.github/openai/openai_file.py "${{ secrets.OPENAPIKEY }}" "./CHANGELOG.md" "$PROMPT")
+          echo "check_result=$RESPONSE" >> $GITHUB_OUTPUT
           echo "OpenAI Response: $RESPONSE"
 
+
+
       - name: Apply changelog updates
-        if: steps.generate_changelog.outputs.changelog_entry != null
         run: |
           if [ -f ${{ env.INPUT_FILE }} ]; then rm ${{ env.INPUT_FILE }}; fi
           python ./.github/changelog/changelog.py "${{ steps.generate_changelog.outputs.changelog_entry }}" "./CHANGELOG.md"
