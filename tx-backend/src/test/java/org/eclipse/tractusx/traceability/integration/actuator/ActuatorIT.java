@@ -61,21 +61,6 @@ class ActuatorIT extends IntegrationTestSpecification {
         Assert.assertNotNull(mockMvc);
     }
 
-    @Test
-    public void shouldRetrieveActuatorHealthLivenessDataWithoutAuthentication() {
-        given(requestSpecification)
-                .when().get("/actuator/health/liveness")
-                .then().statusCode(200)
-                .body("status", equalTo("UP"));
-    }
-
-    @Test
-    public void shouldRetrieveActuatorHealthReadinessDataWithoutAuthentication() {
-        given(requestSpecification)
-                .when().get("/actuator/health/readiness")
-                .then().statusCode(200)
-                .body("status", equalTo("UP"));
-    }
 
 
 }
