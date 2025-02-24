@@ -15,7 +15,6 @@ jobs:
       - name: Check for existing comment and delete if necessary
         id: check_existing_comment
         run: |
-
           COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                          -H "Accept: application/vnd.github.v3+json" \
                          "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments")
