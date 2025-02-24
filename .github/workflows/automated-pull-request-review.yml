@@ -15,7 +15,6 @@ jobs:
       - name: Check for existing comment and delete if necessary
         id: check_existing_comment
         run: |
-
           COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                          -H "Accept: application/vnd.github.v3+json" \
                          "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments")
@@ -67,7 +66,7 @@ jobs:
           PROMPT="You are tasked with analyzing the provided Git diff file and crafting a concise and strictly formatted review comment based on the changes. Your comment must focus on identifying potential bugs or issues with a clear explanation, suggesting specific improvements aligned with best practices, and confirming high-quality aspects of the changes. Write your response as a single, cohesive comment. Rely primarily on the Git diff content, ensuring actionable and precise feedback while avoiding unnecessary formatting or verbosity."
           DIFF_CONTENT="${{ env.DIFF_CONTENT }}"
 
-          RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "${{ secrets.OPENAPIKEY }}" "$DIFF_CONTENT" "$PROMPT")
+          RESPONSE=$(python ./.github/openai/openai_file.py "${{ secrets.OPENAPIKEY }}" "$DIFF_CONTENT" "$PROMPT")
           echo 'response<<EOF' >> $GITHUB_OUTPUT
           echo "$RESPONSE" >> $GITHUB_OUTPUT
           echo 'EOF' >> $GITHUB_OUTPUT

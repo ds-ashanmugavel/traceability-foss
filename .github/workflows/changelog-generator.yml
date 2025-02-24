@@ -24,7 +24,7 @@ jobs:
                         -H "Accept: application/vnd.github.v3+json" \
                         "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments")
           echo "$COMMENTS"
-          if echo "$COMMENTS" | grep -q "🎉 Changelog Updated!"; then
+          if echo "$COMMENTS" | grep -q "Changelog Updated!"; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
@@ -34,29 +34,29 @@ jobs:
         if: steps.check_existing_comment.outputs.exists == 'false'
         id: prepare_input
         run: |
-            PR_TITLE="${{ github.event.pull_request.title }}"
-            PR_BODY="${{ github.event.pull_request.body }}"
-            BASE_REF="${{ github.event.pull_request.base.ref }}"
-            HEAD_REF="${{ github.event.pull_request.head.ref }}"
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_BODY="${{ github.event.pull_request.body }}"
+          BASE_REF="${{ github.event.pull_request.base.ref }}"
+          HEAD_REF="${{ github.event.pull_request.head.ref }}"
 
-            git fetch origin "$HEAD_REF:$HEAD_REF"
-            git checkout "$HEAD_REF"
-            git fetch origin "$BASE_REF:$BASE_REF"
-            git diff "origin/$BASE_REF" > "raw_diff.txt"
+          git fetch origin "$HEAD_REF:$HEAD_REF"
+          git checkout "$HEAD_REF"
+          git fetch origin "$BASE_REF:$BASE_REF"
+          git diff "origin/$BASE_REF" > "raw_diff.txt"
 
-            jq -n \
-              --arg title "$PR_TITLE" \
-              --arg description "$PR_BODY" \
-              --arg diff "$(cat raw_diff.txt | sed 's/"/\\"/g' | tr '\n' ' ')" \
-              '{
-                title: $title,
-                description: $description,
-                diff: $diff
-            }' > Input.json
+          jq -n \
+            --arg title "$PR_TITLE" \
+            --arg description "$PR_BODY" \
+            --arg diff "$(cat raw_diff.txt | sed 's/"/\\"/g' | tr '\n' ' ')" \
+            '{
+              title: $title,
+              description: $description,
+              diff: $diff
+          }' > Input.json
 
-            if [ -f "raw_diff.txt" ]; then rm raw_diff.txt; fi
+          if [ -f "raw_diff.txt" ]; then rm raw_diff.txt; fi
 
-            echo "INPUT_FILE=Input.json" >> $GITHUB_ENV
+          echo "INPUT_FILE=Input.json" >> $GITHUB_ENV
 
       - name: Upload Input.json as artifact
         if: steps.check_existing_comment.outputs.exists == 'false'
@@ -82,14 +82,15 @@ jobs:
         run: |
           PROMPT="You are tasked with creating a concise and strictly formatted changelog entry based on the input file, which contains Git diffs, Pull Request (PR) titles, and descriptions; the changelog entry must fit to the format ('Category: #XXXX Brief description.') where 'Category' is replaced with 'Added,' 'Changed,' or 'Removed' based on the nature of the change inferred primarily from the Git diff while using the PR title and description only for supplementary context, and the issue number is extracted from the PR title (format: #XXXX) or replaced with #XXXX as a placeholder if absent; the entire entry must not exceed 15 words, with a strict focus on the Git diff content to ensure precision, structure, and alignment with these rules. Use only # as a special character, otherwise use only letters and numbers. Ensure the response is a single string without line breaks, backticks, apostrophe or extra formatting."
           INPUT_FILE="${{ env.INPUT_FILE }}"
-          RESPONSE=$(python ./.github/OpenAi/OpenAi_File.py "${{ secrets.OPENAPIKEY }}" "$INPUT_FILE" "$PROMPT")
+          RESPONSE=$(python ./.github/openai/openai_file.py "${{ secrets.OPENAPIKEY }}" "$INPUT_FILE" "$PROMPT")
           echo "changelog_entry=$RESPONSE" >> $GITHUB_OUTPUT
           echo "OpenAI Response: $RESPONSE"
+
       - name: Apply changelog updates
         if: steps.check_existing_comment.outputs.exists == 'false' && steps.generate_changelog.outputs.changelog_entry != null
         run: |
           if [ -f ${{ env.INPUT_FILE }} ]; then rm ${{ env.INPUT_FILE }}; fi
-          python ./.github/changelog/Changelog.py "${{ steps.generate_changelog.outputs.changelog_entry }}" "./CHANGELOG.md"
+          python ./.github/changelog/changelog.py "${{ steps.generate_changelog.outputs.changelog_entry }}" "./CHANGELOG.md"
           git add CHANGELOG.md
           git commit -m "docs: update changelog"
           git push origin "${{ github.event.pull_request.head.ref }}"
@@ -99,6 +100,6 @@ jobs:
         if: steps.check_existing_comment.outputs.exists == 'false'
         with:
           message: |
-            ## 🎉 Changelog Updated!
+            ## Changelog Updated!
             The changelog has been successfully updated.
           allow-repeats: true
