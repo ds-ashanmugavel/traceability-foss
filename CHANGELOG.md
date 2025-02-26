@@ -11,7 +11,6 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 
 
 ### Added
-- #1230 Implemented new feature in workflow.
 - #XXXX Introduced GitHub Action to manage changelog updates.
 
 
