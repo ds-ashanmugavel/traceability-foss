@@ -85,7 +85,8 @@ jobs:
           RESPONSE=$(python ./.github/openai/openai_file.py "${{ secrets.OPENAPIKEY }}" "$INPUT_FILE" "$PROMPT")
 
           CHANGELOG_ENTRY=$(echo "$RESPONSE" | sed -E 's/(Justification:.*)//')
-          JUSTIFICATION=$(echo "$RESPONSE" | sed -E 's/.*Justification: //')
+          JUSTIFICATION=$(echo "$RESPONSE" | sed -nE 's/.*(Justification: .*)/\1/p')
+
 
           echo "changelog_entry=$CHANGELOG_ENTRY" >> $GITHUB_OUTPUT
           echo "justification=$JUSTIFICATION" >> $GITHUB_OUTPUT
