@@ -80,11 +80,18 @@ jobs:
         if: steps.check_existing_comment.outputs.exists == 'false'
         id: generate_changelog
         run: |
-          PROMPT="You are tasked with creating a concise and strictly formatted changelog entry based on the input file, which contains Git diffs, Pull Request (PR) titles, and descriptions; the changelog entry must fit to the format ('Category: #XXXX Brief description.') where 'Category' is replaced with 'Added,' 'Changed,' or 'Removed' based on the nature of the change inferred primarily from the Git diff while using the PR title and description only for supplementary context, and the issue number is extracted from the PR title (format: #XXXX) or replaced with #XXXX as a placeholder if absent; the entire entry must not exceed 15 words, with a strict focus on the Git diff content to ensure precision, structure, and alignment with these rules. Use only # as a special character, otherwise use only letters and numbers. Ensure the response is a single string without line breaks, backticks, apostrophe or extra formatting."
+          PROMPT="You are tasked with creating a concise and strictly formatted changelog entry based on the input file, which contains Git diffs, Pull Request (PR) titles, and descriptions; the changelog entry must fit to the format ('Category: #XXXX Brief description.') where 'Category' is replaced with 'Added,' 'Changed,' or 'Removed' based on the nature of the change inferred primarily from the Git diff while using the PR title and description only for supplementary context, and the issue number is extracted from the PR title (format: #XXXX) or replaced with #XXXX as a placeholder if absent; the entire entry must not exceed 15 words, with a strict focus on the Git diff content to ensure precision, structure, and alignment with these rules. Use only # as a special character, otherwise use only letters and numbers. Ensure the response is a single string without line breaks, backticks, apostrophe or extra formatting. After the changelog entry, provide a justification in the format: 'Justification: ...'. The justification must clearly explain why the specific category and description were chosen based on the Git diff analysis. The entire response must be a single string without line breaks, backticks, apostrophes, or extra formatting."
           INPUT_FILE="${{ env.INPUT_FILE }}"
           RESPONSE=$(python ./.github/openai/openai_file.py "${{ secrets.OPENAPIKEY }}" "$INPUT_FILE" "$PROMPT")
-          echo "changelog_entry=$RESPONSE" >> $GITHUB_OUTPUT
+
+          CHANGELOG_ENTRY=$(echo "$RESPONSE" | sed -E 's/(Justification:.*)//')
+          JUSTIFICATION=$(echo "$RESPONSE" | sed -nE 's/.*(Justification: .*)/\1/p')
+
+
+          echo "changelog_entry=$CHANGELOG_ENTRY" >> $GITHUB_OUTPUT
+          echo "justification=$JUSTIFICATION" >> $GITHUB_OUTPUT
           echo "OpenAI Response: $RESPONSE"
+
 
       - name: Apply changelog updates
         if: steps.check_existing_comment.outputs.exists == 'false' && steps.generate_changelog.outputs.changelog_entry != null
@@ -97,9 +104,10 @@ jobs:
 
       - name: Post changelog update comment
         uses: mshick/add-pr-comment@v2
-        if: steps.check_existing_comment.outputs.exists == 'false'
+        if: steps.check_existing_comment.outputs.exists == 'false' && steps.generate_changelog.outputs.justification != null
         with:
           message: |
             ## Changelog Updated!
             The changelog has been successfully updated.
+            "${{ steps.generate_changelog.outputs.justification }}"
           allow-repeats: true
