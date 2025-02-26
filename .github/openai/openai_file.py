@@ -13,7 +13,7 @@ assistant = client.beta.assistants.create(
     name="Developer",
     instructions="You are a Software Developer with high knowledge in software security",
     tools=[{"type": "file_search"}],
-    model="gpt-4o-mini",
+    model="gpt-4o-mini-2024-07-18",
 )
 
 def process_file_and_query(file_path, user_query):
