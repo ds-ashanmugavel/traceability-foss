@@ -1,7 +1,7 @@
 import argparse
 from openai import OpenAI
 
-parser = argparse.ArgumentParser(description="Send input to OpenAI API and get a concise changelog.")
+parser = argparse.ArgumentParser(description="Send input to OpenAI API.")
 parser.add_argument("api_key", help="Your OpenAI API key.", type=str)
 parser.add_argument('filename')
 parser.add_argument("prompt", help="Prompt to customize the OpenAI API behavior.", type=str)
