@@ -19,7 +19,7 @@ def update_changelog(changelog_file, input_string):
             break
 
     if not action:
-        print("Ungültige Aktion: Die Eingabe muss 'added', 'removed' oder 'changed' enthalten.")
+        print("Invalid action: The input must contain 'added', 'removed' or 'changed'.")
         return
 
     try:
@@ -31,7 +31,7 @@ def update_changelog(changelog_file, input_string):
             if len(split_content) > 1 and not split_content[1].startswith(" "):
                 content = split_content[0] + "."
     except ValueError:
-        print("Fehler beim Verarbeiten der Eingabe.")
+        print("Error processing input.")
         return
 
     section_header = valid_actions[action]
@@ -40,7 +40,7 @@ def update_changelog(changelog_file, input_string):
         with open(changelog_file, 'r', encoding='utf-8') as file:
             lines = file.readlines()
     except FileNotFoundError:
-        print(f"Datei {changelog_file} wurde nicht gefunden.")
+        print(f"File {changelog_file} was not found.")
         return
 
     updated = False
@@ -53,13 +53,13 @@ def update_changelog(changelog_file, input_string):
             updated = True
 
     if not updated:
-        print(f"Sektion {section_header} wurde nicht im Changelog gefunden.")
+        print(f"Section {section_header} was not found in the changelog.")
         return
 
     with open(changelog_file, 'w', encoding='utf-8') as file:
         file.writelines(new_lines)
 
-    print(f"Changelog erfolgreich aktualisiert: {content}")
+    print(f"Changelog successfully updated: {content}")
 
 
 update_changelog(args.filename, args.Response)
