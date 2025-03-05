@@ -16,6 +16,7 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 
 
 ### Removed
+- #XXXX Deleted quality requirements documentation.
 
 
 
