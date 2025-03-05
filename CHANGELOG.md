@@ -8,6 +8,7 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 _**For better traceability add the corresponding GitHub issue number in each changelog entry, please.**_
 ## [UNRELEASED - DD.MM.YYYY]
 ### Changed
+- #XXXX Update changelog generator workflow to verify existing comments.
 - #XXXX Introduced a delay in changelog generation workflow.
 
 
