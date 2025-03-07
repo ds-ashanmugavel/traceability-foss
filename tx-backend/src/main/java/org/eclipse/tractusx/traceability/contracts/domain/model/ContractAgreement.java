@@ -43,29 +43,6 @@ public class ContractAgreement {
     private Instant updated;
     private String globalAssetId;
 
-    public static ContractAgreementBaseEntity toEntity(ContractAgreement contractAgreement) {
-        return ContractAgreementBaseEntity.builder()
-                .created(contractAgreement.getCreated())
-                .contractAgreementId(contractAgreement.getContractAgreementId())
-                .type(contractAgreement.getType())
-                .updated(contractAgreement.getUpdated())
-                .globalAssetId(contractAgreement.getGlobalAssetId())
-                .build();
-    }
-
-    public static List<ContractAgreementBaseEntity> toEntityList(List<ContractAgreement> contractAgreementList) {
-        return contractAgreementList.stream().map(ContractAgreement::toEntity).toList();
-    }
-
-    public static ContractAgreement toDomain(String contractAgreementId, String globalAssetId, ContractType contractType) {
-        return ContractAgreement.builder()
-                .contractAgreementId(contractAgreementId)
-                .type(contractType)
-                .globalAssetId(globalAssetId)
-                .created(Instant.now())
-                .updated(Instant.now())
-                .build();
-    }
 
 
     public static List<ContractAgreement> fromAsBuiltEntityToContractAgreements(List<ContractAgreementAsBuiltEntity> contractAgreementAsBuiltEntities) {
