@@ -17,6 +17,7 @@ _**For better traceability add the corresponding GitHub issue number in each cha
 
 
 ### Removed
+- #XXXX Removed test method from NotificationMessageMapperTest.
 
 
 
