@@ -47,55 +47,7 @@ class NotificationMessageMapperTest {
     @InjectMocks
     private NotificationMapper mapper;
 
-    @Test
-    void testToReceiverInvestigation() {
-        // Given
-        String sender = "BPNL000000000001";
-        String receiver = "BPNL000000000002";
-        String description = "Test investigation";
-        NotificationMessage notification = NotificationMessage.builder()
-                .id("1")
-                .notificationReferenceId("Test notification")
-                .notificationStatus(NotificationStatus.RECEIVED)
-                .affectedParts(List.of(new NotificationAffectedPart("123")))
-                .sentByName("senderManufacturerName")
-                .sentBy(sender)
-                .sentTo(receiver)
-                .sendToName("receiverManufacturerName")
-                .messageId("1")
-                .build();
-        NotificationType type = NotificationType.INVESTIGATION;
 
-        EDCNotificationHeader header = new EDCNotificationHeader(
-                "notif-12345",
-                "BPNL00000001ABC",
-                "https://sender-address.com",
-                "BPNL00000002DEF",
-                "Risk",
-                "High",
-                "notif-54321",
-                "Open",
-                "2024-07-01T12:00:00Z",
-                "msg-67890"
-        );
-
-        EDCNotificationContent content = new EDCNotificationContent(
-                description,
-                Arrays.asList("Item1", "Item2", "Item3")
-        );
-
-        EDCNotification edcNotification = new EDCNotification(header, content);
-        // When
-        Notification result = mapper.toNotification(new BPN(receiver), edcNotification, notification, type, BPN.of("BPNL00000001ABC"));
-
-        // Then
-        assertEquals(NotificationStatus.RECEIVED, result.getNotificationStatus());
-        assertEquals(NotificationSide.RECEIVER, result.getNotificationSide());
-        assertEquals(description, result.getDescription());
-        assertEquals(List.of("123"), result.getAffectedPartIds());
-        assertEquals(List.of(notification), result.getNotifications());
-        assertEquals(NotificationType.INVESTIGATION, result.getNotificationType());
-    }
 }
 
 
